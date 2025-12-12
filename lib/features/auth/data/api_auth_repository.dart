@@ -11,26 +11,7 @@ class ApiAuthRepository implements AuthRepository {
 
   @override
   Future<UserModel> login(String email, String password) async {
-    // Backend doesn't have login, only /users/:uid or create /users.
-    // For hackathon, we simulate login by fetching user by email? 
-    // Backend: GET /users/:uid
-    // We don't have endpoints to search by email!
-    // We can fetch user if we know UID. 
-    // Real auth is hard.
-    // Proposal: "Login" just creates a new session or we reuse a hardcoded user or try to find logic.
-    // Let's implement a "fake" login that registers if not exists or just uses a consistent ID for email?
-    // Or just use the 'register' flow which is upsert in backend.
-    
-    // Simplification: Login = Register (Upsert)
-    // We generate a deterministic UID from email? No, UUID.
-    // Let's assume the user enters UID or we just create a new one.
-    // Hackathon shortcut: Login creates/gets user.
-    
-    // Proper way: We need endpoint to find user by email.
-    // I'll skip implementing 'find by email' in backend for now unless really needed.
-    // I will treat login as "register/login" with upsert.
-    
-    final uid = _uuid.v5(Uuid.NAMESPACE_URL, email); // Deterministic UID based on email!
+    final uid = _uuid.v5(Uuid.NAMESPACE_URL, email);
     return register(email, password, email.split('@')[0]);
   }
 
@@ -69,7 +50,6 @@ class ApiAuthRepository implements AuthRepository {
 
   @override
   Future<UserModel> signInWithGoogle() async {
-     // Mock Google Sign In
      await Future.delayed(const Duration(seconds: 1));
      return UserModel(
         uid: 'demo_google_user', 
@@ -78,4 +58,55 @@ class ApiAuthRepository implements AuthRepository {
         explorerPoints: 500
      );
   }
+
+  // --- OTP AUTHENTICATION ---
+
+  @override
+  Future<OtpResponse> sendOtp(String email) async {
+    final response = await _apiService.post('/auth/send-otp', {'email': email});
+    return OtpResponse(
+      success: response['success'] ?? false,
+      message: response['message'] ?? 'OTP sent',
+      otp: response['otp'], // For hackathon demo
+    );
+  }
+
+  @override
+  Future<SessionResponse> verifyOtp(String email, String otp, {String? displayName}) async {
+    final response = await _apiService.post('/auth/verify-otp', {
+      'email': email,
+      'otp': otp,
+      'displayName': displayName,
+    });
+
+    final userMap = response['user'];
+    final sessionMap = response['session'];
+
+    return SessionResponse(
+      sessionId: sessionMap['sessionId'],
+      expiresAt: sessionMap['expiresAt'],
+      user: UserModel(
+        uid: userMap['uid'],
+        email: userMap['email'],
+        displayName: userMap['displayName'],
+        explorerPoints: userMap['explorerPoints'] ?? 0,
+      ),
+    );
+  }
+
+  @override
+  Future<bool> validateSession(String sessionId) async {
+    try {
+      final response = await _apiService.get('/auth/session/$sessionId');
+      return response['valid'] == true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  @override
+  Future<void> logout(String sessionId) async {
+    await _apiService.post('/auth/logout', {'sessionId': sessionId});
+  }
 }
+

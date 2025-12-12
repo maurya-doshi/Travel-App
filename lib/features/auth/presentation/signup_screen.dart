@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:travel_hackathon/features/auth/presentation/auth_providers.dart';
+import 'package:travel_hackathon/features/auth/presentation/otp_verification_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'dart:ui'; // For BackdropFilter
@@ -47,6 +48,52 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
             behavior: SnackBarBehavior.floating,
             backgroundColor: Colors.redAccent,
           )
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _handleOtpLogin() async {
+    final email = _emailController.text.trim();
+    final name = _nameController.text.trim();
+
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter your email address'),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.orangeAccent,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    try {
+      final otpResponse = await ref.read(authRepositoryProvider).sendOtp(email);
+
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => OtpVerificationScreen(
+              email: email,
+              displayName: name.isNotEmpty ? name : null,
+              otpHint: otpResponse.otp, // For hackathon demo
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to send OTP: $e'),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.redAccent,
+          ),
         );
       }
     } finally {
@@ -236,6 +283,26 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
                         const SizedBox(height: 24),
 
+                        // EMAIL OTP BUTTON (Primary for Hackathon Challenge)
+                        ElevatedButton.icon(
+                          onPressed: _isLoading ? null : _handleOtpLogin,
+                          icon: const Icon(Icons.email_outlined, size: 24),
+                          label: Text(
+                            'Continue with Email OTP', 
+                            style: GoogleFonts.lato(fontSize: 16, fontWeight: FontWeight.bold)
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF00BFA6), // Teal
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                        ).animate().fade(delay: 800.ms).slideY(begin: 0.2),
+
+                        const SizedBox(height: 12),
+
                         OutlinedButton.icon(
                           onPressed: _isLoading ? null : _handleGoogleSignIn,
                           icon: const Icon(Icons.g_mobiledata, size: 28),
@@ -251,7 +318,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                               borderRadius: BorderRadius.circular(16),
                             ),
                           ),
-                        ).animate().fade(delay: 800.ms).slideY(begin: 0.2),
+                        ).animate().fade(delay: 900.ms).slideY(begin: 0.2),
                       ],
                     ),
                   ),

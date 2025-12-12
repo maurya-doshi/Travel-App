@@ -97,6 +97,26 @@ db.serialize(() => {
     status TEXT DEFAULT 'active'
   )`);
 
+  // 7. OTP Codes Table (Email OTP Verification)
+  db.run(`CREATE TABLE IF NOT EXISTS otp_codes (
+    id TEXT PRIMARY KEY,
+    email TEXT NOT NULL,
+    code TEXT NOT NULL,
+    expiresAt TEXT NOT NULL,
+    verified INTEGER DEFAULT 0,
+    createdAt TEXT NOT NULL
+  )`);
+
+  // 8. User Sessions Table (Session-Based Auth)
+  db.run(`CREATE TABLE IF NOT EXISTS user_sessions (
+    sessionId TEXT PRIMARY KEY,
+    userId TEXT NOT NULL,
+    createdAt TEXT NOT NULL,
+    expiresAt TEXT NOT NULL,
+    isActive INTEGER DEFAULT 1,
+    FOREIGN KEY(userId) REFERENCES users(uid)
+  )`);
+
   console.log('Database tables initialized.');
 });
 
