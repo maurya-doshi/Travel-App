@@ -49,7 +49,6 @@ class ApiAuthRepository implements AuthRepository {
       email: response['email'],
       displayName: response['displayName'],
       explorerPoints: response['explorerPoints'] ?? 0,
-      visitedCities: [], // Backend doesn't store this yet?
     );
   }
 
@@ -61,8 +60,7 @@ class ApiAuthRepository implements AuthRepository {
         uid: response['uid'],
         email: response['email'],
         displayName: response['displayName'],
-        explorerPoints: response['explorerPoints'] ?? 0,
-        visitedCities: [],
+      explorerPoints: response['explorerPoints'] ?? 0,
       );
     } catch (e) {
       return null;

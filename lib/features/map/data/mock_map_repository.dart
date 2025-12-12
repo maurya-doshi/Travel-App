@@ -8,34 +8,22 @@ class MockMapRepository implements MapRepository {
   // Fake Database
   final List<DestinationPin> _pins = [
     DestinationPin(
-      id: 'pin_paris_1',
-      city: 'Paris',
-      name: 'Eiffel Tower Meetup',
-      latitude: 48.8584,
-      longitude: 2.2945,
-
-      activeVisitorCount: 124,
+      id: 'pin_bangalore_1',
+      city: 'Bangalore',
+      name: 'Cubbon Park Meetup',
+      latitude: 12.9716,
+      longitude: 77.5946,
+      activeVisitorCount: 142,
       createdAt: DateTime.now().subtract(const Duration(days: 2)),
     ),
     DestinationPin(
-      id: 'pin_paris_2',
-      city: 'Paris', 
-      name: 'Louvre Art Walk',
-      latitude: 48.8606,
-      longitude: 2.3376,
-
-      activeVisitorCount: 45,
+      id: 'pin_mumbai_1',
+      city: 'Mumbai', 
+      name: 'Gateway of India',
+      latitude: 19.0760,
+      longitude: 72.8777,
+      activeVisitorCount: 98,
       createdAt: DateTime.now().subtract(const Duration(hours: 5)),
-    ),
-    DestinationPin(
-      id: 'pin_london_1',
-      city: 'London',
-      name: 'Big Ben Sightseeing',
-      latitude: 51.5007,
-      longitude: -0.1246,
-
-      activeVisitorCount: 89,
-      createdAt: DateTime.now().subtract(const Duration(days: 1)),
     ),
   ];
 

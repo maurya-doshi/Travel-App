@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:travel_hackathon/features/auth/presentation/auth_providers.dart';
 import 'package:travel_hackathon/features/social/domain/travel_event_model.dart';
 import 'package:travel_hackathon/features/social/presentation/social_providers.dart';
 import 'package:intl/intl.dart';
@@ -50,18 +51,58 @@ class EventsScreen extends ConsumerWidget {
                     ),
                   ],
                 ),
-                trailing: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.teal,
-                    foregroundColor: Colors.white,
+                  trailing: Consumer(
+                    builder: (context, ref, child) {
+                      final currentUser = ref.watch(currentUserProvider);
+                      // Hackathon: Default to test user if null
+                      final userId = currentUser ?? 'test-user-1'; 
+                      
+                      final isParticipant = event.participantIds.contains(userId);
+                      final isPending = event.pendingRequestIds.contains(userId);
+
+                      if (isParticipant) {
+                         return const Chip(
+                           label: Text('Joined', style: TextStyle(color: Colors.white)),
+                           backgroundColor: Colors.green,
+                         );
+                      }
+                      
+                      if (isPending) {
+                         return const Chip(
+                           label: Text('Pending', style: TextStyle(color: Colors.white)),
+                           backgroundColor: Colors.orange,
+                         );
+                      }
+
+                      return ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.teal,
+                          foregroundColor: Colors.white,
+                        ),
+                        onPressed: () async {
+                          // Call API
+                          await ref.read(socialRepositoryProvider).joinEvent(event.id, userId);
+                          // Refresh List
+                          ref.invalidate(eventsForCityProvider(city));
+                          
+                          if (!event.requiresApproval) {
+                             // Navigate to Chat if joined immediately
+                             if (context.mounted) {
+                               context.push('/chat/${event.id.replaceAll('event_', 'chat_')}');
+                             }
+                          } else {
+                             // Show snackbar?
+                             if (context.mounted) {
+                               ScaffoldMessenger.of(context).showSnackBar(
+                                 const SnackBar(content: Text('Request sent! Waiting for approval.'))
+                               );
+                             }
+                          }
+                        },
+                        child: Text(event.requiresApproval ? 'Request' : 'Join'),
+                      );
+                    }
                   ),
-                  onPressed: () {
-                    // In a real app, logic for "Request to Join" vs "Join"
-                    // For demo, we assume they are accepted and go to Chat
-                    context.push('/chat/${event.id.replaceAll('event_', 'chat_')}');
-                  },
-                  child: const Text('Join'),
-                ),
               ),
             );
           },

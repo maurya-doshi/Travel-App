@@ -13,8 +13,8 @@ class MapScreen extends ConsumerStatefulWidget {
 }
 
 class _MapScreenState extends ConsumerState<MapScreen> {
-  // Default to Paris for the Hackathon Demo
-  final _initialCenter = const LatLng(48.8566, 2.3522);
+  // Default to Bangalore (MSRIT context)
+  final _initialCenter = const LatLng(12.9716, 77.5946);
 
   @override
   Widget build(BuildContext context) {

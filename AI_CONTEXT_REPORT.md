@@ -171,3 +171,11 @@ class GroupChat {
 *   **Run Frontend:** `flutter pub get && flutter run`.
 *   **Note:** If testing on iOS Simulator, update `api_service.dart` baseUrl to `http://localhost:3000`.
 
+### 6.4 Schema alignment & Demo Decisions (2025-12-12)
+*   **Resolved Schema Mismatches:**
+    *   `DestinationPin`: Removed `creatorId` (Backend does not store it).
+    *   `TravelEvent`: Removed `description` and `maxParticipants` ( Backend does not support them yet). Frontend updated to avoid crashes.
+*   **Demo Strategy (Hackathon Focus):**
+    *   **Map:** `activeVisitorCount` is currently **MOCKED/STATIC** in the database. Dynamic aggregation is postponed.
+    *   **Locations:** Shifting focus to **Bangalore** and **Mumbai** for the demo.
+    *   **Features:** Prioritizing "Join Event" flow over complex backend validation.
