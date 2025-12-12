@@ -4,14 +4,20 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:travel_hackathon/features/auth/presentation/auth_providers.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Watch current user ID (or full user object if we had it loaded)
+    // Watch current user ID
     final uid = ref.watch(currentUserProvider);
+    
+    // Helper to get email (for display)
+    // In a real app, we'd have a User object provider.
+    // For Mock, we'll strip the 'user_id_' prefix or just show the ID.
+    final displayEmail = uid?.replaceAll('user_id_', '') ?? 'Guest';
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -64,7 +70,7 @@ class ProfileScreen extends ConsumerWidget {
              
              // 2. Identity
              Text(
-               uid ?? 'Guest Traveler',
+               displayEmail,
                style: GoogleFonts.oswald(fontSize: 24, fontWeight: FontWeight.bold),
              ).animate().fade().slideY(begin: 0.2),
              const SizedBox(height: 8),
@@ -106,11 +112,13 @@ class ProfileScreen extends ConsumerWidget {
              SizedBox(
                 width: double.infinity,
                 child: TextButton.icon(
-                  onPressed: () {
+                  onPressed: () async {
                     // clear session
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.clear();
+                    
                     ref.read(currentUserProvider.notifier).state = null;
-                    // go to signup
-                    context.go('/signup');
+                    // go to signup handled by router redirect
                   },
                   icon: const Icon(Icons.logout, color: Colors.red),
                   label: Text('Log Out', style: GoogleFonts.lato(color: Colors.red, fontWeight: FontWeight.bold)),

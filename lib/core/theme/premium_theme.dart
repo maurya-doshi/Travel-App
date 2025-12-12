@@ -2,29 +2,42 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class PremiumTheme {
-  // Colors (Modern Minimalist)
-  static const Color primary = Color(0xFF1A1A1A); // Jet Black
-  static const Color secondary = Color(0xFF2E3A59); // Deep Navy Accents
-  static const Color background = Color(0xFFF8F9FE); // Soft Blue-White
+  // Colors (3D Pastel / Claymorphism)
+  static const Color primary = Color(0xFF7B66FF); // Vibrant Purple
+  static const Color secondary = Color(0xFF4ECDC4); // Soft Cyan
+  static const Color accent = Color(0xFFFF9F1C); // Playful Orange
+  static const Color background = Color(0xFFF3F0FF); // Light Lavender BG
   static const Color surface = Colors.white;
-  static const Color textPrimary = Color(0xFF1A1A1A);
-  static const Color textSecondary = Color(0xFF8F9BB3);
-  static const Color accent = Color(0xFF4E5D78); // Steel Blue
+  static const Color textPrimary = Color(0xFF2D2B55); // Deep Indigo Text
+  static const Color textSecondary = Color(0xFF8F9BB3); // Soft Grey
+
+  // Gradients
+  static const LinearGradient primaryGradient = LinearGradient(
+    colors: [Color(0xFFA566FF), Color(0xFF7B66FF)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient accentGradient = LinearGradient(
+    colors: [Color(0xFF4ECDC4), Color(0xFF2AB7CA)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
 
   // Text Theme
-  static TextTheme get _textTheme => GoogleFonts.montserratTextTheme().copyWith(
-    displayLarge: GoogleFonts.playfairDisplay(
-      fontSize: 36, fontWeight: FontWeight.bold, color: textPrimary, letterSpacing: -0.5),
-    displayMedium: GoogleFonts.playfairDisplay(
-      fontSize: 28, fontWeight: FontWeight.bold, color: textPrimary),
-    titleLarge: GoogleFonts.montserrat(
-      fontSize: 20, fontWeight: FontWeight.w700, color: textPrimary),
-    bodyLarge: GoogleFonts.inter(
+  static TextTheme get _textTheme => GoogleFonts.poppinsTextTheme().copyWith(
+    displayLarge: GoogleFonts.poppins(
+      fontSize: 32, fontWeight: FontWeight.bold, color: textPrimary, letterSpacing: -0.5),
+    displayMedium: GoogleFonts.poppins(
+      fontSize: 24, fontWeight: FontWeight.bold, color: textPrimary),
+    titleLarge: GoogleFonts.poppins(
+      fontSize: 20, fontWeight: FontWeight.w600, color: textPrimary),
+    bodyLarge: GoogleFonts.dmSans(
       fontSize: 16, color: textPrimary, height: 1.5),
-    bodyMedium: GoogleFonts.inter(
+    bodyMedium: GoogleFonts.dmSans(
       fontSize: 14, color: textSecondary, height: 1.4),
-    labelLarge: GoogleFonts.inter(
-      fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
+    labelLarge: GoogleFonts.dmSans(
+      fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
   );
 
   static ThemeData get lightTheme {
@@ -48,45 +61,52 @@ class PremiumTheme {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
-        iconTheme: const IconThemeData(color: primary),
-        titleTextStyle: _textTheme.titleLarge?.copyWith(color: primary),
+        iconTheme: const IconThemeData(color: textPrimary),
+        titleTextStyle: _textTheme.titleLarge?.copyWith(color: textPrimary),
       ),
       
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: primary,
           foregroundColor: Colors.white, // Text color
-          elevation: 0,
+          elevation: 10,
+          shadowColor: primary.withOpacity(0.4),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)), // Pill Shape
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
           textStyle: _textTheme.labelLarge,
         ),
       ),
 
       cardTheme: CardThemeData(
         color: surface,
-        elevation: 8,
-        shadowColor: Colors.black.withOpacity(0.05),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        elevation: 10,
+        shadowColor: Color(0xFF7B66FF).withOpacity(0.15), // Colored Shadow
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
       ),
 
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: surface,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: primary, width: 1.5),
+          borderRadius: BorderRadius.circular(20),
+          borderSide: const BorderSide(color: primary, width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         hintStyle: _textTheme.bodyMedium?.copyWith(color: textSecondary.withOpacity(0.6)),
+      ),
+      
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: primary,
+        elevation: 10,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       ),
       
       pageTransitionsTheme: const PageTransitionsTheme(

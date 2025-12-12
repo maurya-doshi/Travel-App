@@ -4,11 +4,13 @@ import 'package:go_router/go_router.dart';
 import 'package:travel_hackathon/features/map/presentation/map_screen.dart';
 import 'package:travel_hackathon/features/social/presentation/chat_screen.dart';
 import 'package:travel_hackathon/features/social/presentation/events_screen.dart';
-import 'package:travel_hackathon/features/auth/presentation/signup_screen.dart';
+import 'package:travel_hackathon/features/auth/presentation/otp_login_screen.dart';
 import 'package:travel_hackathon/core/presentation/scaffold_with_navbar.dart';
 import 'package:travel_hackathon/features/auth/presentation/profile_screen.dart';
 import 'package:travel_hackathon/features/social/presentation/create_event_screen.dart';
 import 'package:travel_hackathon/features/discovery/presentation/city_selection_screen.dart';
+
+import 'package:travel_hackathon/features/auth/presentation/auth_providers.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   // Global key for valid context in shell
@@ -17,14 +19,26 @@ final routerProvider = Provider<GoRouter>((ref) {
   final _shellNavigatorExploreKey = GlobalKey<NavigatorState>(debugLabel: 'shellExplore');
   final _shellNavigatorProfileKey = GlobalKey<NavigatorState>(debugLabel: 'shellProfile');
 
+  final userId = ref.watch(currentUserProvider);
+
   return GoRouter(
-    initialLocation: '/signup',
+    initialLocation: '/login',
     navigatorKey: _rootNavigatorKey,
+    // refreshListenable: ValueNotifier(userId), // Ideally needs a real listenable
+    redirect: (context, state) {
+      final isLoggedIn = userId != null;
+      final isLoggingIn = state.uri.toString() == '/login';
+
+      if (!isLoggedIn && !isLoggingIn) return '/login';
+      if (isLoggedIn && isLoggingIn) return '/';
+
+      return null;
+    },
     routes: [
-      // AUTH (No Shell)
+      // AUTH
       GoRoute(
-        path: '/signup',
-        builder: (context, state) => const SignupScreen(),
+        path: '/login',
+        builder: (context, state) => const OtpLoginScreen(),
       ),
 
       // TABS (Shell)

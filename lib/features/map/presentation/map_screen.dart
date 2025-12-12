@@ -7,6 +7,7 @@ import 'package:travel_hackathon/features/map/presentation/map_providers.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'dart:ui'; // For BackdropFilter
+import 'package:travel_hackathon/core/theme/premium_theme.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
@@ -41,7 +42,8 @@ class _MapScreenState extends ConsumerState<MapScreen> with TickerProviderStateM
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                urlTemplate: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+                subdomains: const ['a', 'b', 'c'],
                 userAgentPackageName: 'com.example.travel_hackathon',
               ),
               
@@ -51,8 +53,8 @@ class _MapScreenState extends ConsumerState<MapScreen> with TickerProviderStateM
                   markers: pins.map((pin) {
                     return Marker(
                       point: LatLng(pin.latitude, pin.longitude),
-                      width: 80,
-                      height: 80,
+                      width: 120,
+                      height: 120,
                       child: GestureDetector(
                         onTap: () {
                           // Navigate to Bulletin Board / Events
@@ -78,48 +80,45 @@ class _MapScreenState extends ConsumerState<MapScreen> with TickerProviderStateM
             top: MediaQuery.of(context).padding.top + 16,
             left: 16,
             right: 16,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(30),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                child: Container(
-                  height: 56,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.8),
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+            child: Container(
+              height: 60,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: PremiumTheme.primary.withOpacity(0.15),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
                   ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.search, color: Colors.grey),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          'Search destinations...',
-                          style: GoogleFonts.lato(color: Colors.grey[600], fontSize: 16),
-                        ),
-                      ),
-                      Container(
-                         padding: const EdgeInsets.all(8),
-                         decoration: const BoxDecoration(
-                           color: Color(0xFF6A1B9A), // Brand Purple
-                           shape: BoxShape.circle,
-                         ),
-                         child: const Icon(Icons.tune, color: Colors.white, size: 16),
-                      ),
-                    ],
-                  ),
-                ),
+                ],
               ),
-            ),
-          ).animate().slideY(begin: -1, duration: 600.ms, curve: Curves.easeOutQuart),
+              child: Row(
+                children: [
+                  const Icon(Icons.search, color: Colors.grey),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Search destinations...',
+                      style: GoogleFonts.dmSans(color: Colors.grey[600], fontSize: 16),
+                    ),
+                  ),
+                   Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        gradient: PremiumTheme.primaryGradient,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(color: PremiumTheme.primary.withOpacity(0.4), blurRadius: 8, offset: const Offset(0, 4))
+                        ],
+                      ),
+                      child: const Icon(Icons.tune, color: Colors.white, size: 16),
+                   ),
+                ],
+              ),
+            ).animate().slideY(begin: -1, duration: 600.ms, curve: Curves.easeOutBack),
+          ),
 
           // 3. Floating User Stats / Context (Optional - keeping minimal)
         ],
@@ -129,27 +128,24 @@ class _MapScreenState extends ConsumerState<MapScreen> with TickerProviderStateM
       floatingActionButton: Container(
         margin: const EdgeInsets.only(bottom: 100),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF6A1B9A), Color(0xFF8E2AA8)],
-             begin: Alignment.topLeft,
-             end: Alignment.bottomRight,
-          ),
+          gradient: PremiumTheme.primaryGradient,
           borderRadius: BorderRadius.circular(30),
           boxShadow: [
-             BoxShadow(color: const Color(0xFF6A1B9A).withOpacity(0.4), blurRadius: 12, offset: const Offset(0, 6))
+             BoxShadow(color: PremiumTheme.primary.withOpacity(0.4), blurRadius: 16, offset: const Offset(0, 8))
           ],
         ),
         child: FloatingActionButton.extended(
+          heroTag: 'map_fab',
           backgroundColor: Colors.transparent, // Use container gradient
           elevation: 0,
           highlightElevation: 0,
           icon: const Icon(Icons.add_location_alt, color: Colors.white),
-          label: Text('Host Event', style: GoogleFonts.lato(color: Colors.white, fontWeight: FontWeight.bold)),
+          label: Text('Host Event', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold)),
           onPressed: () {
               context.push('/create-event');
           },
         ),
-      ).animate().scale(delay: 500.ms),
+      ).animate().scale(delay: 500.ms, curve: Curves.elasticOut),
     );
   }
 }
@@ -166,38 +162,52 @@ class _AnimatedMapMarker extends StatelessWidget {
       children: [
         // Pulsing Circle
         SizedBox(
-          height: 48,
+          height: 60,
           child: Stack(
             alignment: Alignment.center,
             children: [
               // Pulse Effect
               Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: PremiumTheme.primary.withOpacity(0.15),
+                ),
+              ).animate(onPlay: (c) => c.repeat(reverse: true))
+               .scale(begin: const Offset(0.8, 0.8), end: const Offset(1.2, 1.2), duration: 2.seconds),
+              
+              // Core Pin (Gradient)
+              Container(
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: const Color(0xFFFF6B6B).withOpacity(0.3),
-                ),
-              ).animate(onPlay: (c) => c.repeat(reverse: true))
-               .scale(begin: const Offset(0.8, 0.8), end: const Offset(1.2, 1.2), duration: 1.seconds),
-              
-              // Core Pin
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFFFF6B6B), Color(0xFFE05252)],
+                    colors: [Color(0xFFA566FF), Color(0xFF7B66FF)], // Purple Gradient
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 2),
+                  border: Border.all(color: Colors.white, width: 3),
                   boxShadow: [
-                     BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 4, offset: const Offset(0, 2))
+                     BoxShadow(color: PremiumTheme.primary.withOpacity(0.4), blurRadius: 10, offset: const Offset(0, 6))
                   ],
                 ),
-                child: const Icon(Icons.location_city, color: Colors.white, size: 20),
+                child: const Icon(Icons.location_city, color: Colors.white, size: 24),
+              ),
+              
+              // Notification Badge
+              Positioned(
+                top: 0,
+                right: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFFF9F1C), // Orange structure
+                    shape: BoxShape.circle,
+                  ),
+                  child: const SizedBox(width: 4, height: 4),
+                ),
               ),
             ],
           ),

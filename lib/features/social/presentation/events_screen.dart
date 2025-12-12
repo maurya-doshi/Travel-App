@@ -150,6 +150,7 @@ class EventsScreen extends ConsumerWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'events_fab',
         onPressed: () => context.push('/create-event'),
         backgroundColor: PremiumTheme.primary,
         foregroundColor: Colors.white,

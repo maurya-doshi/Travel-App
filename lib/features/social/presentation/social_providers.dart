@@ -8,8 +8,9 @@ import 'package:travel_hackathon/core/services/api_service_provider.dart';
 import 'package:travel_hackathon/features/social/data/api_social_repository.dart';
 
 final socialRepositoryProvider = Provider<SocialRepository>((ref) {
-  final apiService = ref.watch(apiServiceProvider);
-  return ApiSocialRepository(apiService);
+  // final apiService = ref.watch(apiServiceProvider);
+  // return ApiSocialRepository(apiService);
+  return MockSocialRepository();
 });
 
 // Events for a specific city
