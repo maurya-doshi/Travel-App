@@ -1,0 +1,6 @@
+Building Windows application...                                 
+lib/features/social/domain/travel_event_model.dart(35,19): error GF1A08FD9: A getter can't have formal parameters. [D:\JOSEPH VISHAL\OneDrive\Documents\MSRIT\3rd Year\WhackIest\travel_hackathon-main\build\windows\x64\flutter\flutter_assemble.vcxproj]
+lib/features/social/domain/travel_event_model.dart(35,35): error GD65BB2B6: The getter 'uid' isn't defined for the type 'TravelEvent'. [D:\JOSEPH VISHAL\OneDrive\Documents\MSRIT\3rd Year\WhackIest\travel_hackathon-main\build\windows\x64\flutter\flutter_assemble.vcxproj]
+C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Microsoft\VC\v160\Microsoft.CppCommon.targets(241,5): error MSB8066: Custom build for 'D:\JOSEPH VISHAL\OneDrive\Documents\MSRIT\3rd Year\WhackIest\travel_hackathon-main\build\windows\x64\CMakeFiles\78b8395a1902328e00fd81e351453234\flutter_windows.dll.rule;D:\JOSEPH VISHAL\OneDrive\Documents\MSRIT\3rd Year\WhackIest\travel_hackathon-main\build\windows\x64\CMakeFiles\bbbbf4803576c50f654779ea5417ccc3\flutter_assemble.rule' exited with code 1. [D:\JOSEPH VISHAL\OneDrive\Documents\MSRIT\3rd Year\WhackIest\travel_hackathon-main\build\windows\x64\flutter\flutter_assemble.vcxproj]
+Building Windows application...                                     8.4s
+Build process failed.
