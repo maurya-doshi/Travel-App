@@ -12,4 +12,5 @@ abstract class SocialRepository {
     bool? flexibleOnly
   });
   Future<void> joinEvent(String eventId, String userId);
+  Future<void> createEvent(TravelEvent event);
 }

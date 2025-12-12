@@ -102,4 +102,10 @@ class MockSocialRepository implements SocialRepository {
     // Mock join
     await Future.delayed(const Duration(milliseconds: 500));
   }
+
+  @override
+  Future<void> createEvent(TravelEvent event) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    _events.add(event);
+  }
 }

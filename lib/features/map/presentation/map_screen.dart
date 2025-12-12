@@ -24,12 +24,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Travel Map'),
-        actions: [
-           IconButton(
-             icon: const Icon(Icons.person),
-             onPressed: () {}, // TODO: Profile
-           )
-        ],
       ),
       body: FlutterMap(
         options: MapOptions(
@@ -50,28 +44,57 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               markers: pins.map((pin) {
                 return Marker(
                   point: LatLng(pin.latitude, pin.longitude),
-                  width: 60,
-                  height: 60,
+                  width: 100,
+                  height: 100,
                   child: GestureDetector(
                     onTap: () {
                       // Navigate to Bulletin Board
                       if (pin.city != null) {
-                        context.push('/events?city=${pin.city}');
+                        context.push('/explore/events?city=${pin.city}');
                       }
                     },
                     child: Column(
                       children: [
-                        const Icon(Icons.location_on, color: Colors.teal, size: 40),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFFFF6B6B), Color(0xFFE05252)], // Coral Gradient
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                               BoxShadow(
+                                 color: Colors.black.withOpacity(0.3),
+                                 blurRadius: 6,
+                                 offset: const Offset(0, 3),
+                               )
+                            ],
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
+                          child: const Icon(Icons.location_city, color: Colors.white, size: 24),
+                        ),
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(4),
-                            boxShadow: const [BoxShadow(blurRadius: 2)],
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                               BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4),
+                            ],
                           ),
-                          child: Text(
-                            pin.activeVisitorCount.toString(),
-                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.people, size: 10, color: Colors.grey),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${pin.activeVisitorCount} active',
+                                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black87),
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -88,10 +111,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add_location_alt),
+      floatingActionButton: FloatingActionButton.extended(
+        icon: const Icon(Icons.add_location_alt),
+        label: const Text('Host'),
         onPressed: () {
-            // TODO: Drop pin UI
+            context.push('/create-event');
         },
       ),
     );

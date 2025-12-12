@@ -1,0 +1,33 @@
+Resolving dependencies...
+Downloading packages...
+  characters 1.4.0 (1.4.1 available)
+  flutter_lints 4.0.0 (6.0.0 available)
+  flutter_map 7.0.2 (8.2.2 available)
+  flutter_riverpod 2.6.1 (3.0.3 available)
+  go_router 14.8.1 (17.0.1 available)
+  google_sign_in 6.2.1 (7.2.0 available)
+  google_sign_in_android 6.2.1 (7.2.7 available)
+  google_sign_in_ios 5.9.0 (6.2.4 available)
+  google_sign_in_platform_interface 2.5.0 (3.1.0 available)
+  google_sign_in_web 0.12.4+4 (1.1.0 available)
+  intl 0.19.0 (0.20.2 available)
+  lints 4.0.0 (6.0.0 available)
+  matcher 0.12.17 (0.12.18 available)
+  material_color_utilities 0.11.1 (0.13.0 available)
+  mgrs_dart 2.0.0 (3.0.0 available)
+  proj4dart 2.1.0 (3.0.0 available)
+  riverpod 2.6.1 (3.0.3 available)
+  test_api 0.7.7 (0.7.8 available)
+  unicode 0.3.1 (1.1.8 available)
+Got dependencies!
+19 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Building Windows application...                                 
+D:\JOSEPH VISHAL\OneDrive\Documents\MSRIT\3rd Year\WhackIest\travel_hackathon-main\build\windows\x64\extracted\firebase_cpp_sdk_windows\include\firebase/variant.h(801,7): error C2220: the following warning is treated as an error [D:\JOSEPH VISHAL\OneDrive\Documents\MSRIT\3rd Year\WhackIest\travel_hackathon-main\build\windows\x64\plugins\firebase_auth\firebase_auth_plugin.vcxproj]
+D:\JOSEPH VISHAL\OneDrive\Documents\MSRIT\3rd Year\WhackIest\travel_hackathon-main\build\windows\x64\extracted\firebase_cpp_sdk_windows\include\firebase/variant.h(801,7): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details. [D:\JOSEPH VISHAL\OneDrive\Documents\MSRIT\3rd Year\WhackIest\travel_hackathon-main\build\windows\x64\plugins\firebase_auth\firebase_auth_plugin.vcxproj]
+D:\JOSEPH VISHAL\OneDrive\Documents\MSRIT\3rd Year\WhackIest\travel_hackathon-main\build\windows\x64\extracted\firebase_cpp_sdk_windows\include\firebase/variant.h(827,7): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details. [D:\JOSEPH VISHAL\OneDrive\Documents\MSRIT\3rd Year\WhackIest\travel_hackathon-main\build\windows\x64\plugins\firebase_auth\firebase_auth_plugin.vcxproj]
+D:\JOSEPH VISHAL\OneDrive\Documents\MSRIT\3rd Year\WhackIest\travel_hackathon-main\build\windows\x64\extracted\firebase_cpp_sdk_windows\include\firebase/variant.h(801,7): error C2220: the following warning is treated as an error [D:\JOSEPH VISHAL\OneDrive\Documents\MSRIT\3rd Year\WhackIest\travel_hackathon-main\build\windows\x64\plugins\firebase_auth\firebase_auth_plugin.vcxproj]
+D:\JOSEPH VISHAL\OneDrive\Documents\MSRIT\3rd Year\WhackIest\travel_hackathon-main\build\windows\x64\extracted\firebase_cpp_sdk_windows\include\firebase/variant.h(801,7): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details. [D:\JOSEPH VISHAL\OneDrive\Documents\MSRIT\3rd Year\WhackIest\travel_hackathon-main\build\windows\x64\plugins\firebase_auth\firebase_auth_plugin.vcxproj]
+D:\JOSEPH VISHAL\OneDrive\Documents\MSRIT\3rd Year\WhackIest\travel_hackathon-main\build\windows\x64\extracted\firebase_cpp_sdk_windows\include\firebase/variant.h(827,7): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details. [D:\JOSEPH VISHAL\OneDrive\Documents\MSRIT\3rd Year\WhackIest\travel_hackathon-main\build\windows\x64\plugins\firebase_auth\firebase_auth_plugin.vcxproj]
+Building Windows application...                                    31.0s
+Build process failed.

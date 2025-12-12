@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1007903507898",
+    "project_id": "travel-app-ef933",
+    "storage_bucket": "travel-app-ef933.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1007903507898:android:e275c6e80214654f714983",
+        "android_client_info": {
+          "package_name": "com.example.travel_hackathon"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1007903507898-u6139eepg2caupqhomir00ldhen7r2lk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDjDPmH0rUgtc7A8C5pX2oY0sJz5-tRcqM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1007903507898-u6139eepg2caupqhomir00ldhen7r2lk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

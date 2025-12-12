@@ -1,0 +1,38 @@
+Resolving dependencies...
+Downloading packages...
+  characters 1.4.0 (1.4.1 available)
+  flutter_lints 4.0.0 (6.0.0 available)
+  flutter_map 7.0.2 (8.2.2 available)
+  flutter_riverpod 2.6.1 (3.0.3 available)
+  go_router 14.8.1 (17.0.1 available)
+  google_sign_in 6.2.1 (7.2.0 available)
+  google_sign_in_android 6.2.1 (7.2.7 available)
+  google_sign_in_ios 5.9.0 (6.2.4 available)
+  google_sign_in_platform_interface 2.5.0 (3.1.0 available)
+  google_sign_in_web 0.12.4+4 (1.1.0 available)
+  intl 0.19.0 (0.20.2 available)
+  lints 4.0.0 (6.0.0 available)
+  matcher 0.12.17 (0.12.18 available)
+  material_color_utilities 0.11.1 (0.13.0 available)
+  mgrs_dart 2.0.0 (3.0.0 available)
+  proj4dart 2.1.0 (3.0.0 available)
+  riverpod 2.6.1 (3.0.3 available)
+  test_api 0.7.7 (0.7.8 available)
+  unicode 0.3.1 (1.1.8 available)
+Got dependencies!
+19 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Building Windows application...                                 
+firebase_app.lib(9517b511b2df07341741fe8d83119943_firebase_app.dir_Release_cleanup_notifier.obj) : error LNK2019: unresolved external symbol __std_find_trivial_8 referenced in function "void * * __cdecl std::_Find_vectorized<void *,void *>(void * * const,void * * const,void * const)" (??$_Find_vectorized@PEAXPEAX@std@@YAPEAPEAXQEAPEAX0QEAX@Z) [D:\JOSEPH VISHAL\OneDrive\Documents\MSRIT\3rd Year\WhackIest\travel_hackathon-main\build\windows\x64\runner\travel_hackathon.vcxproj]
+firebase_app.lib(9df1b499e9d93fa7bea97ae713d33ce7_flatbuffers.dir_Release_idl_parser.obj) : error LNK2001: unresolved external symbol __std_find_trivial_8 [D:\JOSEPH VISHAL\OneDrive\Documents\MSRIT\3rd Year\WhackIest\travel_hackathon-main\build\windows\x64\runner\travel_hackathon.vcxproj]
+firebase_auth.lib(d48c2d5c2ee6ee6849b2a8e761eb596c_firebase_auth.dir_Release_auth.obj) : error LNK2001: unresolved external symbol __std_find_trivial_8 [D:\JOSEPH VISHAL\OneDrive\Documents\MSRIT\3rd Year\WhackIest\travel_hackathon-main\build\windows\x64\runner\travel_hackathon.vcxproj]
+firebase_app.lib(9df1b499e9d93fa7bea97ae713d33ce7_flatbuffers.dir_Release_idl_parser.obj) : error LNK2019: unresolved external symbol __std_find_last_trivial_1 referenced in function "char const * __cdecl std::_Find_last_vectorized<char const ,char>(char const * const,char const * const,char)" (??$_Find_last_vectorized@$$CBDD@std@@YAPEBDQEBD0D@Z) [D:\JOSEPH VISHAL\OneDrive\Documents\MSRIT\3rd Year\WhackIest\travel_hackathon-main\build\windows\x64\runner\travel_hackathon.vcxproj]
+firebase_app.lib(9df1b499e9d93fa7bea97ae713d33ce7_flatbuffers.dir_Release_util.obj) : error LNK2001: unresolved external symbol __std_find_last_trivial_1 [D:\JOSEPH VISHAL\OneDrive\Documents\MSRIT\3rd Year\WhackIest\travel_hackathon-main\build\windows\x64\runner\travel_hackathon.vcxproj]
+firebase_app.lib(9df1b499e9d93fa7bea97ae713d33ce7_flatbuffers.dir_Release_idl_parser.obj) : error LNK2019: unresolved external symbol __std_find_first_of_trivial_1 referenced in function "char const * __cdecl std::_Find_first_of_vectorized<char const ,char const >(char const * const,char const * const,char const * const,char const * const)" (??$_Find_first_of_vectorized@$$CBD$$CBD@std@@YAPEBDQEBD000@Z) [D:\JOSEPH VISHAL\OneDrive\Documents\MSRIT\3rd Year\WhackIest\travel_hackathon-main\build\windows\x64\runner\travel_hackathon.vcxproj]
+firebase_app.lib(9df1b499e9d93fa7bea97ae713d33ce7_flatbuffers.dir_Release_idl_parser.obj) : error LNK2019: unresolved external symbol __std_remove_8 referenced in function "struct f_b_flatbuffers::StructDef * * __cdecl std::_Remove_vectorized<struct f_b_flatbuffers::StructDef *,struct f_b_flatbuffers::StructDef *>(struct f_b_flatbuffers::StructDef * * const,struct f_b_flatbuffers::StructDef * * const,struct f_b_flatbuffers::StructDef * const)" (??$_Remove_vectorized@PEAUStructDef@f_b_flatbuffers@@PEAU12@@std@@YAPEAPEAUStructDef@f_b_flatbuffers@@QEAPEAU12@0QEAU12@@Z) [D:\JOSEPH VISHAL\OneDrive\Documents\MSRIT\3rd Year\WhackIest\travel_hackathon-main\build\windows\x64\runner\travel_hackathon.vcxproj]
+firebase_app.lib(9517b511b2df07341741fe8d83119943_firebase_app.dir_Release_heartbeat_storage_desktop.obj) : error LNK2019: unresolved external symbol __std_find_trivial_1 referenced in function "char const * __cdecl std::_Find_vectorized<char const ,unsigned char>(char const * const,char const * const,unsigned char)" (??$_Find_vectorized@$$CBDE@std@@YAPEBDQEBD0E@Z) [D:\JOSEPH VISHAL\OneDrive\Documents\MSRIT\3rd Year\WhackIest\travel_hackathon-main\build\windows\x64\runner\travel_hackathon.vcxproj]
+firebase_app.lib(9df1b499e9d93fa7bea97ae713d33ce7_flatbuffers.dir_Release_util.obj) : error LNK2019: unresolved external symbol __std_find_last_of_trivial_pos_1 referenced in function "unsigned __int64 __cdecl std::_Find_last_of_pos_vectorized<char,char>(char const * const,unsigned __int64,char const * const,unsigned __int64)" (??$_Find_last_of_pos_vectorized@DD@std@@YA_KQEBD_K01@Z) [D:\JOSEPH VISHAL\OneDrive\Documents\MSRIT\3rd Year\WhackIest\travel_hackathon-main\build\windows\x64\runner\travel_hackathon.vcxproj]
+firebase_auth.lib(d48c2d5c2ee6ee6849b2a8e761eb596c_firebase_auth.dir_Release_error_codes.obj) : error LNK2019: unresolved external symbol __std_search_1 referenced in function "char const * __cdecl std::_Search_vectorized<char const ,char const >(char const * const,char const * const,char const * const,unsigned __int64)" (??$_Search_vectorized@$$CBD$$CBD@std@@YAPEBDQEBD00_K@Z) [D:\JOSEPH VISHAL\OneDrive\Documents\MSRIT\3rd Year\WhackIest\travel_hackathon-main\build\windows\x64\runner\travel_hackathon.vcxproj]
+D:\JOSEPH VISHAL\OneDrive\Documents\MSRIT\3rd Year\WhackIest\travel_hackathon-main\build\windows\x64\runner\Release\travel_hackathon.exe : fatal error LNK1120: 7 unresolved externals [D:\JOSEPH VISHAL\OneDrive\Documents\MSRIT\3rd Year\WhackIest\travel_hackathon-main\build\windows\x64\runner\travel_hackathon.vcxproj]
+Building Windows application...                                    34.3s
+Build process failed.

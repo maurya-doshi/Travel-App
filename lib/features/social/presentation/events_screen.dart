@@ -61,9 +61,12 @@ class EventsScreen extends ConsumerWidget {
                       final isPending = event.pendingRequestIds.contains(userId);
 
                       if (isParticipant) {
-                         return const Chip(
-                           label: Text('Joined', style: TextStyle(color: Colors.white)),
+                         return ActionChip(
+                           label: const Text('Chat', style: TextStyle(color: Colors.white)),
                            backgroundColor: Colors.green,
+                           onPressed: () {
+                             context.push('/chat/${event.id.replaceAll('event_', 'chat_')}');
+                           },
                          );
                       }
                       
@@ -111,9 +114,13 @@ class EventsScreen extends ConsumerWidget {
         error: (e, s) => Center(child: Text('Error: $e')),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {}, // TODO: Create Event
+        onPressed: () {
+          context.push('/create-event');
+        },
         label: const Text('New Event'),
         icon: const Icon(Icons.add),
+        backgroundColor: Colors.deepPurple,
+        foregroundColor: Colors.white,
       ),
     );
   }

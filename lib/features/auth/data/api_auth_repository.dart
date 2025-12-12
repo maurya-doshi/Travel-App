@@ -60,10 +60,22 @@ class ApiAuthRepository implements AuthRepository {
         uid: response['uid'],
         email: response['email'],
         displayName: response['displayName'],
-      explorerPoints: response['explorerPoints'] ?? 0,
+        explorerPoints: response['explorerPoints'] ?? 0,
       );
     } catch (e) {
       return null;
     }
+  }
+
+  @override
+  Future<UserModel> signInWithGoogle() async {
+     // Mock Google Sign In
+     await Future.delayed(const Duration(seconds: 1));
+     return UserModel(
+        uid: 'demo_google_user', 
+        email: 'demo@google.com', 
+        displayName: 'Demo Google User',
+        explorerPoints: 500
+     );
   }
 }
