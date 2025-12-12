@@ -8,6 +8,8 @@ import 'package:travel_hackathon/features/auth/presentation/auth_providers.dart'
 import 'package:travel_hackathon/features/social/domain/travel_event_model.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:travel_hackathon/core/theme/premium_theme.dart';
+import 'package:travel_hackathon/core/constants/city_constants.dart';
+import 'package:travel_hackathon/core/services/city_service.dart';
 
 class CreateEventScreen extends ConsumerStatefulWidget {
   const CreateEventScreen({super.key});
@@ -18,7 +20,8 @@ class CreateEventScreen extends ConsumerStatefulWidget {
 
 class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
   final _titleController = TextEditingController();
-  final _cityController = TextEditingController(text: 'Bangalore'); // Default
+  // final _cityController = TextEditingController(text: 'Bangalore'); // Removed
+  String _selectedCity = 'Bangalore'; // Default
   DateTime _selectedDate = DateTime.now();
   TimeOfDay _selectedTime = TimeOfDay.now();
   bool _requiresApproval = false;
@@ -50,7 +53,7 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
 
     final event = TravelEvent(
       id: '', // Backend generates ID
-      city: _cityController.text,
+      city: _selectedCity,
       title: _titleController.text,
       eventDate: eventDate,
       isDateFlexible: _isFlexible,
@@ -63,9 +66,9 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
       await ref.read(socialRepositoryProvider).createEvent(event);
       if (mounted) {
         // Updated redirect to the new events route
-        context.go('/explore/events?city=${_cityController.text}');
+        context.go('/explore/events?city=$_selectedCity');
         // ignore: unused_result
-        ref.refresh(eventsForCityProvider(_cityController.text));
+        ref.refresh(eventsForCityProvider(_selectedCity));
       }
     } catch (e) {
       if (mounted) {
@@ -110,6 +113,22 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
     if (picked != null) setState(() => _selectedTime = picked);
   }
 
+  void _pickCity() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) => _CitySelectionSheet(
+        onCitySelected: (city) {
+          setState(() => _selectedCity = city);
+          Navigator.pop(context);
+        },
+      ),
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -144,13 +163,35 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
               delay: 200,
             ),
             const SizedBox(height: 16),
-             _CustomTextField(
-              controller: _cityController, 
-              label: 'Where is it happening?', 
-              hint: 'City Name',
-              icon: Icons.location_on_outlined,
-              delay: 300,
-            ),
+            const SizedBox(height: 16),
+            InkWell(
+              onTap: _pickCity,
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                decoration: BoxDecoration(
+                   color: Colors.grey[50], 
+                   borderRadius: BorderRadius.circular(16),
+                   border: Border.all(color: Colors.grey[200]!),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.location_on_outlined, color: Colors.grey),
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Where is it happening?', style: GoogleFonts.lato(fontSize: 10, color: Colors.grey[600], fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 4),
+                        Text(_selectedCity, style: GoogleFonts.lato(fontSize: 16, color: Colors.black, fontWeight: FontWeight.w600)),
+                      ],
+                    ),
+                    const Spacer(),
+                    const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+                  ],
+                ),
+              ),
+            ).animate(delay: 300.ms).fadeIn().slideY(begin: 0.2),
             
             const SizedBox(height: 32),
 
@@ -339,5 +380,128 @@ class _SwitchCard extends StatelessWidget {
       subtitle: Text(subtitle, style: GoogleFonts.lato(fontSize: 14, color: Colors.grey[600])),
       activeColor: Colors.black,
     ).animate(delay: delay.ms).fadeIn();
+  }
+}
+
+class _CitySelectionSheet extends StatefulWidget {
+  final Function(String) onCitySelected;
+  const _CitySelectionSheet({required this.onCitySelected});
+
+  @override
+  State<_CitySelectionSheet> createState() => _CitySelectionSheetState();
+}
+
+class _CitySelectionSheetState extends State<_CitySelectionSheet> {
+  final TextEditingController _searchController = TextEditingController();
+  List<String> _allCities = [];
+  List<String> _filteredCities = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCities();
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  Future<void> _loadCities() async {
+    final cities = await CityService().getIndianCities();
+    if (mounted) {
+      setState(() {
+        _allCities = cities;
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _onSearchChanged() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      _filteredCities = _allCities
+          .where((city) => city.toLowerCase().contains(query))
+          .toList();
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isSearching = _searchController.text.isNotEmpty;
+    
+    return DraggableScrollableSheet(
+      initialChildSize: 0.8,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      expand: false,
+      builder: (context, scrollController) {
+        return Column(
+          children: [
+            const SizedBox(height: 16),
+             Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
+            ),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: 'Search city...',
+                  prefixIcon: const Icon(Icons.search),
+                  filled: true,
+                  fillColor: Colors.grey[100],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Divider(color: Colors.grey[200]),
+            if (_isLoading)
+               const LinearProgressIndicator(),
+            Expanded(
+              child: ListView.builder(
+                controller: scrollController,
+                padding: const EdgeInsets.only(bottom: 100),
+                itemCount: isSearching ? _filteredCities.length : kSupportedCities.length,
+                itemBuilder: (context, index) {
+                  if (!isSearching) {
+                    final cityData = kSupportedCities[index];
+                    return ListTile(
+                      leading: const Icon(Icons.star, color: Colors.amber),
+                      title: Text(cityData['name'], style: GoogleFonts.lato(fontSize: 16, fontWeight: FontWeight.bold)),
+                      subtitle: const Text('Popular Destination'),
+                      onTap: () => widget.onCitySelected(cityData['name']),
+                    );
+                  } else {
+                    final cityName = _filteredCities[index];
+                    return ListTile(
+                      leading: const Icon(Icons.location_city, color: Colors.grey),
+                      title: Text(cityName, style: GoogleFonts.lato(fontSize: 16)),
+                      onTap: () => widget.onCitySelected(cityName),
+                    );
+                  }
+                },
+              ),
+            ),
+             if (isSearching && _filteredCities.isEmpty && !_isLoading)
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Text('No cities found', style: GoogleFonts.lato(color: Colors.grey)),
+              ),
+          ],
+        );
+      },
+    );
   }
 }

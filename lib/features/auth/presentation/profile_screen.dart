@@ -122,6 +122,8 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                 ),
              ).animate(delay: 600.ms).fade(),
+
+             SizedBox(height: 100), // Spacing for Navbar
           ],
         ),
       ),

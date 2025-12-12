@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 // Assuming PremiumTheme is defined, if not, replace with Colors.black
+import 'dart:ui';
 import 'package:travel_hackathon/core/theme/premium_theme.dart'; 
 
 class ScaffoldWithNavBar extends StatelessWidget {
@@ -26,32 +27,33 @@ class ScaffoldWithNavBar extends StatelessWidget {
       body: navigationShell,
       bottomNavigationBar: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.only(left: 40, right: 40, bottom: 20),
-          child: Container(
-            height: 70, // Slightly more compact
-            decoration: BoxDecoration(
-              color: const Color(0xFF1A1A1A), // Dark Graphite
-              borderRadius: BorderRadius.circular(35),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.4),
-                  blurRadius: 25,
-                  offset: const Offset(0, 10),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(30),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                height: 60,
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.8), // Translucent dark
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                // Index 0: Map / Explore
-                _buildNavItem(context, 0, Icons.map_outlined, Icons.map_rounded),
-                
-                // Index 1: Events / Social
-                _buildNavItem(context, 1, Icons.calendar_month_outlined, Icons.calendar_month),
-                
-                // Index 2: Profile / Settings
-                _buildNavItem(context, 2, Icons.person_outline, Icons.person),
-              ],
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildNavItem(context, 0, Icons.map_outlined, Icons.map_rounded),
+                    _buildNavItem(context, 1, Icons.calendar_month_outlined, Icons.calendar_month),
+                    _buildNavItem(context, 2, Icons.person_outline, Icons.person),
+                  ],
+                ),
+              ),
             ),
           ),
         ),

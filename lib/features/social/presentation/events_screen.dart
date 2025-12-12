@@ -173,15 +173,18 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'events_fab',
-        onPressed: () => context.push('/create-event'),
-        backgroundColor: PremiumTheme.primary,
-        foregroundColor: Colors.white,
-        elevation: 4,
-        label: const Text('New Event'),
-        icon: const Icon(Icons.add),
-      ).animate().scale(delay: 500.ms),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 90),
+        child: FloatingActionButton.extended(
+          heroTag: 'events_fab',
+          onPressed: () => context.push('/create-event'),
+          backgroundColor: PremiumTheme.primary,
+          foregroundColor: Colors.white,
+          elevation: 4,
+          label: const Text('New Event'),
+          icon: const Icon(Icons.add),
+        ).animate().scale(delay: 500.ms),
+      ),
     );
   }
 }

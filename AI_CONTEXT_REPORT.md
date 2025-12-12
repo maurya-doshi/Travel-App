@@ -144,6 +144,16 @@ class GroupChat {
 *   **Repository:** `ApiAuthRepository` is the active implementation.
 *   **Security:** Passwords currently stored as plaintext (Hackathon MVP).
 
+### 6.4 New Features (City & UI)
+*   **Dynamic City Selection:**
+    *   **Source:** `countriesnow.space` API (Free, No Key).
+    *   **Logic:** Fetches ~4000 Indian cities, caches them for 1 hour.
+    *   **UI:** Searchable BottomSheet with "Popular Cities" fallback.
+*   **Glassmorphic Navbar:**
+    *   Floating pill design with backdrop blur (`BackdropFilter`).
+    *   Reduced height (60px) for better screen real estate.
+
+
 ### 6.2 Backend Architecture (`backend/`)
 *   **Stack:** Node.js (Express) + SQLite (`travel_app.db`).
 *   **Startup:** `cd backend && node server.js`.
