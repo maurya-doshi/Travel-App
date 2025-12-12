@@ -8,13 +8,14 @@ import 'package:travel_hackathon/features/map/data/api_map_repository.dart';
 
 // The Repository Provider (Swappable for Real implementation later)
 final mapRepositoryProvider = Provider<MapRepository>((ref) {
-  final apiService = ref.watch(apiServiceProvider);
-  return ApiMapRepository(apiService);
+  // final apiService = ref.watch(apiServiceProvider);
+  // return ApiMapRepository(apiService);
+  return MockMapRepository();
 });
 
 // The state of pins currently visible
 final mapPinsProvider = FutureProvider.family<List<DestinationPin>, double>((ref, radiusKm) async {
   final repository = ref.watch(mapRepositoryProvider);
-  // Hardcoded Lat/Lng for mock (Paris Center)
-  return repository.getPinsInArea(48.8566, 2.3522, radiusKm);
+  // Hardcoded Lat/Lng for mock (Bangalore Center)
+  return repository.getPinsInArea(12.9716, 77.5946, radiusKm);
 });

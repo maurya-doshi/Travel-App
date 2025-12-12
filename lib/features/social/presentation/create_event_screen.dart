@@ -7,6 +7,7 @@ import 'package:travel_hackathon/features/social/presentation/social_providers.d
 import 'package:travel_hackathon/features/auth/presentation/auth_providers.dart';
 import 'package:travel_hackathon/features/social/domain/travel_event_model.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:travel_hackathon/core/theme/premium_theme.dart';
 
 class CreateEventScreen extends ConsumerStatefulWidget {
   const CreateEventScreen({super.key});
@@ -210,10 +211,10 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
               child: ElevatedButton(
                 onPressed: _isLoading ? null : _create,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6A1B9A),
+                  backgroundColor: PremiumTheme.primary,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   elevation: 8,
-                  shadowColor: const Color(0xFF6A1B9A).withOpacity(0.4),
+                  shadowColor: Colors.black.withOpacity(0.2),
                 ),
                 child: _isLoading 
                   ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
@@ -300,17 +301,17 @@ class _DateTimeCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFFF3E5F5), // Light purple tint
+          color: Colors.grey[100], // Light grey
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: const Color(0xFF6A1B9A), size: 20),
+            Icon(icon, color: Colors.black, size: 20),
             const SizedBox(height: 12),
-            Text(label.toUpperCase(), style: GoogleFonts.lato(fontSize: 10, color: const Color(0xFFAB47BC), fontWeight: FontWeight.bold)),
+            Text(label.toUpperCase(), style: GoogleFonts.lato(fontSize: 10, color: Colors.grey[600], fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
-            Text(value, style: GoogleFonts.oswald(fontSize: 18, color: const Color(0xFF4A148C), fontWeight: FontWeight.w500)),
+            Text(value, style: GoogleFonts.oswald(fontSize: 18, color: Colors.black, fontWeight: FontWeight.w500)),
           ],
         ),
       ),
@@ -336,7 +337,7 @@ class _SwitchCard extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       title: Text(title, style: GoogleFonts.lato(fontSize: 16, fontWeight: FontWeight.bold)),
       subtitle: Text(subtitle, style: GoogleFonts.lato(fontSize: 14, color: Colors.grey[600])),
-      activeColor: const Color(0xFF6A1B9A),
+      activeColor: Colors.black,
     ).animate(delay: delay.ms).fadeIn();
   }
 }

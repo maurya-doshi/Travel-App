@@ -97,6 +97,7 @@ db.serialize(() => {
     status TEXT DEFAULT 'active'
   )`);
 
+<<<<<<< HEAD
   // 7. OTP Codes Table (Email OTP Verification)
   db.run(`CREATE TABLE IF NOT EXISTS otp_codes (
     id TEXT PRIMARY KEY,
@@ -117,6 +118,8 @@ db.serialize(() => {
     FOREIGN KEY(userId) REFERENCES users(uid)
   )`);
 
+=======
+>>>>>>> 919190477dc9050557e49f1aeb460d684f7e2547
   console.log('Database tables initialized.');
 });
 

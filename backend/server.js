@@ -214,7 +214,6 @@ app.post('/chats/:chatId/messages', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-
 // --- SAFETY ---
 
 // Create Safety Alert

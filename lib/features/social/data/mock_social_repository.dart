@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:travel_hackathon/features/auth/domain/user_model.dart';
 import 'package:travel_hackathon/features/social/data/social_repository.dart';
 import 'package:travel_hackathon/features/social/domain/chat_model.dart';
@@ -107,9 +108,21 @@ class MockSocialRepository implements SocialRepository {
     );
   }
 
+  // Stream Controllers for "Real-time" updates
+  final Map<String, StreamController<List<ChatMessage>>> _streamControllers = {};
+
   @override
   Stream<List<ChatMessage>> getMessages(String groupId) {
-    return Stream.value(_messages[groupId] ?? []);
+    if (!_streamControllers.containsKey(groupId)) {
+      _streamControllers[groupId] = StreamController<List<ChatMessage>>.broadcast();
+      // Push initial data
+      Future.microtask(() {
+         if (!_streamControllers[groupId]!.isClosed) {
+           _streamControllers[groupId]!.add(_messages[groupId] ?? []);
+         }
+      });
+    }
+    return _streamControllers[groupId]!.stream;
   }
 
   @override
@@ -123,16 +136,49 @@ class MockSocialRepository implements SocialRepository {
       timestamp: DateTime.now(),
     );
     
+    // Add to local storage
     if (_messages.containsKey(groupId)) {
       _messages[groupId]!.add(newMessage);
     } else {
       _messages[groupId] = [newMessage];
     }
+
+    // Push update to stream
+    _streamControllers[groupId]?.add(List.from(_messages[groupId]!));
+
+    // Mock Bot Reply
+    _triggerBotReply(groupId);
+  }
+
+  void _triggerBotReply(String groupId) async {
+    await Future.delayed(const Duration(seconds: 2));
+    final botMessage = ChatMessage(
+      id: 'bot_${DateTime.now().millisecondsSinceEpoch}',
+      senderId: 'user_1',
+      senderName: 'Alice (Guide)',
+      text: _getBotResponse(),
+      timestamp: DateTime.now(),
+    );
+     if (_messages.containsKey(groupId)) {
+      _messages[groupId]!.add(botMessage);
+      _streamControllers[groupId]?.add(List.from(_messages[groupId]!));
+    }
+  }
+
+  String _getBotResponse() {
+    final responses = [
+      "That sounds perfect! 🌟",
+      "I'll be there a bit early to grab tickets.",
+      "Does everyone have the address?",
+      "Can't wait! 📸",
+      "Don't forget to bring water!",
+      "I think Bob mentioned he's bringing snacks.",
+    ];
+    return responses[DateTime.now().second % responses.length];
   }
 
   @override
   Future<void> joinEvent(String eventId, String userId) async {
-    // Mock join
     await Future.delayed(const Duration(milliseconds: 500));
   }
 
