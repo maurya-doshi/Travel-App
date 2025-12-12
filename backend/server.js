@@ -128,12 +128,12 @@ app.post('/auth/otp/request', async (req, res) => {
 
     try {
         // If Login Flow: Check if user exists first
-        if (isLogin) {
-            const user = await getQuery('SELECT * FROM users WHERE email = ?', [email]);
-            if (!user) {
-                return res.status(404).json({ error: 'User not found. Please sign up first.' });
-            }
-        }
+        // if (isLogin) {
+        //     const user = await getQuery('SELECT * FROM users WHERE email = ?', [email]);
+        //     if (!user) {
+        //         return res.status(404).json({ error: 'User not found. Please sign up first.' });
+        //     }
+        // }
 
         // Generate 6-digit code
         const code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -156,7 +156,8 @@ app.post('/auth/otp/request', async (req, res) => {
 app.post('/auth/otp/verify', async (req, res) => {
     const { email, code, displayName, password } = req.body;
     try {
-        const record = await getQuery('SELECT * FROM otp_codes WHERE email = ?', [email]);
+        // Fetch the LATEST OTP for this email
+        const record = await getQuery('SELECT * FROM otp_codes WHERE email = ? ORDER BY rowid DESC LIMIT 1', [email]);
 
         if (!record) return res.status(400).json({ error: 'No OTP found for this email' });
         if (record.code !== code) return res.status(400).json({ error: 'Invalid Code' });
