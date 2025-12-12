@@ -36,24 +36,24 @@ class ProfileScreen extends ConsumerWidget {
                      padding: const EdgeInsets.all(4),
                      decoration: BoxDecoration(
                        shape: BoxShape.circle,
-                       border: Border.all(color: const Color(0xFF6A1B9A).withOpacity(0.2), width: 2),
+                       border: Border.all(color: Colors.grey[300]!, width: 2),
                      ),
-                     child: const CircleAvatar(
+                     child: CircleAvatar(
                        radius: 60,
-                       backgroundColor: Color(0xFFF3E5F5),
-                       child: Icon(Icons.person, size: 60, color: Color(0xFF6A1B9A)),
+                       backgroundColor: Colors.grey[100],
+                       child: Icon(Icons.person, size: 60, color: Colors.grey[400]),
                      ),
                    ).animate().scale(curve: Curves.elasticOut, duration: 800.ms),
                    Positioned(
                      bottom: 0,
                      right: 0,
                      child: Container(
-                       padding: const EdgeInsets.all(8),
+                       padding: const EdgeInsets.all(10),
                        decoration: const BoxDecoration(
-                         color: Color(0xFF6A1B9A),
+                         color: Colors.black, // Premium Black
                          shape: BoxShape.circle,
                        ),
-                       child: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
+                       child: const Icon(Icons.camera_alt, color: Colors.white, size: 18),
                      ),
                    ),
                  ],
@@ -137,9 +137,9 @@ class _StatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(value, style: GoogleFonts.oswald(fontSize: 20, fontWeight: FontWeight.bold, color: const Color(0xFF6A1B9A))),
+        Text(value, style: GoogleFonts.oswald(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black)),
         const SizedBox(height: 4),
-        Text(label, style: GoogleFonts.lato(fontSize: 12, color: Colors.grey[600])),
+        Text(label.toUpperCase(), style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w600, color: Colors.grey[500], letterSpacing: 0.5)),
       ],
     );
   }

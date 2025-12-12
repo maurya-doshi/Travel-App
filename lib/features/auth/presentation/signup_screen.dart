@@ -78,228 +78,174 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      body: Stack(
-        children: [
-          // Background
-          Positioned.fill(
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFF4A00E0), // Deep Purple
-                    Color(0xFF8E2DE2), // Bright Violet
-                  ],
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // 1. Minimalist Header
+              Text(
+                'Sign Up',
+                textAlign: TextAlign.left,
+                style: GoogleFonts.playfairDisplay(
+                  fontSize: 48,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                  height: 1.1,
                 ),
+              ).animate().fade().slideY(begin: -0.2),
+              
+              const SizedBox(height: 8),
+              
+              Text(
+                'Join the community of explorers.',
+                textAlign: TextAlign.left,
+                style: GoogleFonts.lato(
+                  fontSize: 16,
+                  color: Colors.grey[600],
+                ),
+              ).animate().fade(delay: 200.ms),
+
+              const SizedBox(height: 48),
+
+              // 2. Clean Input Fields
+              _MinimalistTextField(
+                controller: _nameController,
+                label: 'Name',
+                hint: 'John Doe',
+                delay: 300.ms,
               ),
-              child: Stack(
-                children: [
-                   // Decorative Circles for Premium Feel
-                   Positioned(
-                     top: -100,
-                     right: -100,
-                     child: Container(
-                       width: 300,
-                       height: 300,
-                       decoration: BoxDecoration(
-                         shape: BoxShape.circle,
-                         color: Colors.white.withOpacity(0.1),
-                       ),
-                     ),
-                   ),
-                   Positioned(
-                     bottom: -50,
-                     left: -50,
-                     child: Container(
-                       width: 200,
-                       height: 200,
-                       decoration: BoxDecoration(
-                         shape: BoxShape.circle,
-                         color: Colors.black.withOpacity(0.05),
-                       ),
-                     ),
-                   ),
-                ],
+              const SizedBox(height: 20),
+               _MinimalistTextField(
+                 controller: _emailController,
+                 label: 'Email',
+                 hint: 'hello@example.com',
+                 delay: 400.ms,
+               ),
+              const SizedBox(height: 20),
+               _MinimalistTextField(
+                 controller: _passwordController,
+                 label: 'Password',
+                 hint: '••••••••',
+                 obscureText: true,
+                 delay: 500.ms,
+               ),
+
+              const SizedBox(height: 40),
+
+              // 3. Action Buttons
+              _isLoading
+                  ? const Center(child: CircularProgressIndicator(color: Colors.black))
+                  : ElevatedButton(
+                      onPressed: _handleSignup,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black, // Premium Black
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        elevation: 5,
+                        shadowColor: Colors.black.withOpacity(0.3),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(100), // Full Pill
+                        ),
+                      ),
+                      child: Text(
+                        'Create Account',
+                        style: GoogleFonts.inter(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ).animate().fade(delay: 600.ms).scale(),
+
+              const SizedBox(height: 24),
+
+              Center(
+                child: Text("or", style: GoogleFonts.lato(color: Colors.grey[400])).animate().fade(delay: 700.ms),
               ),
-            ),
-          ),
 
-          // Content
-          Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(24),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                  child: Container(
-                    padding: const EdgeInsets.all(32),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: Colors.white.withOpacity(0.2)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(
-                          'Welcome',
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.oswald(
-                            fontSize: 42,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            height: 1.1,
-                          ),
-                        ).animate().fade().slideY(begin: -0.2),
-                        
-                        const SizedBox(height: 8),
-                        
-                        Text(
-                          'Begin your journey here',
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.lato(
-                            fontSize: 16,
-                            color: Colors.white70,
-                            letterSpacing: 0.5,
-                          ),
-                        ).animate().fade(delay: 200.ms),
+              const SizedBox(height: 24),
 
-                        const SizedBox(height: 48),
-
-                        _GlassTextField(
-                          controller: _nameController,
-                          icon: Icons.person_outline,
-                          hintText: 'Full Name',
-                          delay: 300.ms,
-                        ),
-                        const SizedBox(height: 16),
-                        _GlassTextField(
-                          controller: _emailController,
-                          icon: Icons.email_outlined,
-                          hintText: 'Email Address',
-                          delay: 400.ms,
-                        ),
-                        const SizedBox(height: 16),
-                        _GlassTextField(
-                          controller: _passwordController,
-                          icon: Icons.lock_outline,
-                          hintText: 'Password',
-                          obscureText: true,
-                          delay: 500.ms,
-                        ),
-
-                        const SizedBox(height: 32),
-
-                        _isLoading
-                            ? const Center(child: CircularProgressIndicator(color: Colors.white))
-                            : ElevatedButton(
-                                onPressed: _handleSignup,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.white,
-                                  foregroundColor: const Color(0xFF6A1B9A),
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  elevation: 0,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                ),
-                                child: Text(
-                                  'Create Account',
-                                  style: GoogleFonts.lato(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ).animate().fade(delay: 600.ms).scale(),
-
-                        const SizedBox(height: 24),
-
-                        Row(children: [
-                          Expanded(child: Divider(color: Colors.white24)),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Text("OR", style: GoogleFonts.lato(color: Colors.white54, fontSize: 12)),
-                          ),
-                          Expanded(child: Divider(color: Colors.white24)),
-                        ]).animate().fade(delay: 700.ms),
-
-                        const SizedBox(height: 24),
-
-                        OutlinedButton.icon(
-                          onPressed: _isLoading ? null : _handleGoogleSignIn,
-                          icon: const Icon(Icons.g_mobiledata, size: 28),
-                          label: Text(
-                            'Continue with Google', 
-                            style: GoogleFonts.lato(fontSize: 16, fontWeight: FontWeight.w600)
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.white,
-                            side: const BorderSide(color: Colors.white30),
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                        ).animate().fade(delay: 800.ms).slideY(begin: 0.2),
-                      ],
-                    ),
+              OutlinedButton.icon(
+                onPressed: _isLoading ? null : _handleGoogleSignIn,
+                icon: Image.network(
+                  'https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg',
+                  height: 24,
+                  loadingBuilder: (c, child, l) => l == null ? child : const Icon(Icons.g_mobiledata),
+                  errorBuilder: (c, e, s) => const Icon(Icons.g_mobiledata),
+                ),
+                label: Text(
+                  'Continue with Google', 
+                  style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87)
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: Colors.grey[300]!),
+                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(100),
                   ),
                 ),
-              ),
-            ),
+              ).animate().fade(delay: 800.ms).slideY(begin: 0.2),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 }
 
-class _GlassTextField extends StatelessWidget {
+class _MinimalistTextField extends StatelessWidget {
   final TextEditingController controller;
-  final IconData icon;
-  final String hintText;
+  final String label;
+  final String hint;
   final bool obscureText;
   final Duration delay;
 
-  const _GlassTextField({
+  const _MinimalistTextField({
     required this.controller,
-    required this.icon,
-    required this.hintText,
+    required this.label,
+    required this.hint,
     this.obscureText = false,
     required this.delay,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.3), // Dark glass for contrast
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.2)),
-      ),
-      child: TextField(
-        controller: controller,
-        obscureText: obscureText,
-        style: GoogleFonts.lato(color: Colors.white),
-        decoration: InputDecoration(
-          prefixIcon: Icon(icon, color: Colors.white, size: 20),
-          hintText: hintText,
-          hintStyle: GoogleFonts.lato(color: Colors.white70), // Distinct white hint
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label.toUpperCase(),
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Colors.grey[500],
+            letterSpacing: 1.0,
+          ),
         ),
-      ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[50],
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.grey[200]!),
+          ),
+          child: TextField(
+            controller: controller,
+            obscureText: obscureText,
+            style: GoogleFonts.inter(color: Colors.black, fontWeight: FontWeight.w500),
+            decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: GoogleFonts.inter(color: Colors.grey[400]),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+            ),
+          ),
+        ),
+      ],
     ).animate().fade(delay: delay).slideX(begin: -0.1);
   }
 }

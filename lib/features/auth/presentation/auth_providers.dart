@@ -6,7 +6,8 @@ import 'package:travel_hackathon/features/auth/domain/auth_repository.dart';
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   final apiService = ref.watch(apiServiceProvider);
-  return FirebaseAuthRepository(apiService);
+  // Reverting to Mock/Api Repo for disabled Firebase
+  return ApiAuthRepository(apiService);
 });
 
 final currentUserProvider = StateProvider<String?>((ref) => null); // Store UID

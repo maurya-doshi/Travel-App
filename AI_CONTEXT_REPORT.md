@@ -156,22 +156,30 @@ class GroupChat {
     *   `POST /chats/:chatId/messages`: Send a message.
 *   **Database:** Accessing `Travel-App/backend/travel_app.db` (SQLite). *Note: DB was reset to apply schema changes.*
 
-### 6.2 Frontend Updates (`lib/`)
-*   **Dependencies:** Added `http` package.
-*   **Core:** Created `ApiService` (`lib/core/services/api_service.dart`) pointing to `http://10.0.2.2:3000` (Android Emulator Localhost).
-*   **Repositories:**
-    *   `ApiMapRepository` (Implemented): Fetches pins from backend. Maps JSON to `DestinationPin`.
-    *   `ApiSocialRepository` (Implemented): Fetches events, joins events, and polls for chat messages.
-    *   `ApiAuthRepository` (Implemented): Handles "Login" via deterministic UUIDv5 generation from email (Hackathon shortcut).
-*   **Providers:**
-    *   `mapProvider` & `socialProvider` now use the `Api*Repository` implementations.
-    *   Added `authRepositoryProvider`.
+# AI Context Report
+
+## Current State
+**Status:** Feature Complete (Mock Mode)
+**Theme:** Premium Minimalist (Black/White)
+**Backend:** Mock Data (Firebase Disabled)
+
+## Recent Changes
+- **Premium UI Overhaul:**
+    - Switched from Purple/Glassmorphism to High-Contrast Black/White.
+    - Implemented "Floating Pill" Navigation.
+    - Added "Cinematic Parallax" Carousel for City Selection.
+    - Redesigned `EventsScreen` with editorial layout.
+- **Backend Pivot:**
+    - Disabled Firebase Initialization in `main.dart` to resolve build/runtime errors.
+    - Switched `authRepositoryProvider` to `ApiAuthRepository` (Mock Implementation).
+    - Verified Login/Signup flows using local state.
+- **Refactoring:**
+    - `PremiumTheme` created and applied globally.
+    - `SignupScreen` and `ProfileScreen` updated to match new design.
 
 ### 6.3 Action Items for Teammates
 *   **Run Backend:** `cd backend && npm install && npm start`.
 *   **Run Frontend:** `flutter pub get && flutter run`.
-*   **Note:** If testing on iOS Simulator, update `api_service.dart` baseUrl to `http://localhost:3000`.
-
 ### 6.4 Schema alignment & Demo Decisions (2025-12-12)
 *   **Resolved Schema Mismatches:**
     *   `DestinationPin`: Removed `creatorId` (Backend does not store it).

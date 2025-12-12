@@ -1,7 +1,7 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:travel_hackathon/core/theme/premium_theme.dart';
 
 class ScaffoldWithNavBar extends StatelessWidget {
   const ScaffoldWithNavBar({
@@ -21,37 +21,31 @@ class ScaffoldWithNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBody: true, // Allows content to go behind the generic navbar area if needed, but here we control it.
+      extendBody: true,
       body: navigationShell,
-      bottomNavigationBar: Container(
-        margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.9),
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          height: 80,
+          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+          color: Colors.transparent,
+          child: Container(
+            decoration: BoxDecoration(
+              color: PremiumTheme.primary, // Black Pill
+              borderRadius: BorderRadius.circular(40),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(30),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: NavigationBar(
-              height: 70,
-              elevation: 0,
-              backgroundColor: Colors.transparent,
-              indicatorColor: const Color(0xFF6A1B9A).withOpacity(0.1),
-              selectedIndex: navigationShell.currentIndex,
-              labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
-              onDestinationSelected: _onTap,
-              destinations: [
-                _buildDest(Icons.map_outlined, Icons.map, 'Explore'),
-                _buildDest(Icons.airplane_ticket_outlined, Icons.airplane_ticket, 'Events'),
-                _buildDest(Icons.person_outline, Icons.person, 'Profile'),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildNavItem(context, 0, Icons.explore_outlined, Icons.explore),
+                _buildNavItem(context, 1, Icons.calendar_month_outlined, Icons.calendar_month),
+                _buildNavItem(context, 2, Icons.person_outline, Icons.person),
               ],
             ),
           ),
@@ -60,11 +54,23 @@ class ScaffoldWithNavBar extends StatelessWidget {
     );
   }
 
-  NavigationDestination _buildDest(IconData icon, IconData selectedIcon, String label) {
-    return NavigationDestination(
-      icon: Icon(icon, color: Colors.grey[600], size: 26),
-      selectedIcon: Icon(selectedIcon, color: const Color(0xFF6A1B9A), size: 28),
-      label: label,
+  Widget _buildNavItem(BuildContext context, int index, IconData icon, IconData activeIcon) {
+    final isSelected = navigationShell.currentIndex == index;
+    return GestureDetector(
+      onTap: () => _onTap(index),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.white.withOpacity(0.2) : Colors.transparent,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          isSelected ? activeIcon : icon,
+          color: Colors.white,
+          size: 28,
+        ).animate(target: isSelected ? 1 : 0).scale(begin: const Offset(1, 1), end: const Offset(1.2, 1.2)),
+      ),
     );
   }
 }

@@ -1,34 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:travel_hackathon/core/theme/premium_theme.dart';
 
 class CitySelectionScreen extends StatelessWidget {
   const CitySelectionScreen({super.key});
 
-  final List<Map<String, String>> cities = const [
+  final List<Map<String, dynamic>> cities = const [
     {
       'name': 'Bangalore',
+      'country': 'India',
+      'rating': 4.8,
       'image': 'https://images.unsplash.com/photo-1596176530529-78163a4f7af2?auto=format&fit=crop&q=80&w=600',
     },
     {
       'name': 'Mumbai',
+      'country': 'India',
+      'rating': 4.7,
       'image': 'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?auto=format&fit=crop&q=80&w=600',
     },
     {
       'name': 'Paris',
+      'country': 'France',
+      'rating': 4.9,
       'image': 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&q=80&w=600',
     },
     {
       'name': 'New York',
+      'country': 'USA',
+      'rating': 4.8,
       'image': 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&q=80&w=600',
     },
     {
       'name': 'Tokyo',
+      'country': 'Japan',
+      'rating': 5.0,
       'image': 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&q=80&w=600',
     },
     {
       'name': 'London',
+      'country': 'UK',
+      'rating': 4.7,
       'image': 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&q=80&w=600',
     },
   ];
@@ -36,99 +48,76 @@ class CitySelectionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50], // Light airy background
-      appBar: AppBar(
-        title: Text(
-          'Destinations',
-          style: GoogleFonts.oswald(
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-            letterSpacing: 1.0,
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-      ),
-      body: CustomScrollView(
-        slivers: [
-          // Header
-         SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+      backgroundColor: PremiumTheme.background,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Padding(
+              padding: const EdgeInsets.all(24.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                   Text(
-                    'Where to next?',
-                    style: GoogleFonts.lato(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFF2D3436),
-                    ),
-                  ).animate().fade().slideX(begin: -0.2),
-                  const SizedBox(height: 8),
                   Text(
-                    'Select a city to explore local events.',
-                    style: GoogleFonts.lato(
-                      fontSize: 16,
-                      color: Colors.grey[600],
+                    'Select your',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: PremiumTheme.textSecondary,
+                      fontWeight: FontWeight.w400,
                     ),
-                  ).animate().fade(delay: 200.ms),
+                  ),
+                  Text(
+                    'Next Trip',
+                    style: Theme.of(context).textTheme.displayLarge,
+                  ).animate().fadeIn().slideX(),
                 ],
               ),
             ),
-          ),
-
-          // Grid
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                childAspectRatio: 0.75, // Taller cards for cinematic look
-              ),
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
+            
+            // Carousel
+            Expanded(
+              child: PageView.builder(
+                controller: PageController(viewportFraction: 0.75),
+                itemCount: cities.length,
+                itemBuilder: (context, index) {
                   final city = cities[index];
                   return GestureDetector(
                     onTap: () {
                        context.push('/explore/events?city=${city['name']}');
                     },
-                    child: _CityCard(city: city, index: index),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+                      child: _ParallaxCityCard(city: city, index: index),
+                    ),
                   );
                 },
-                childCount: cities.length,
               ),
             ),
-          ),
-          
-          const SliverToBoxAdapter(child: SizedBox(height: 100)), // Bottom spacer
-        ],
+            const SizedBox(height: 100), // Space for Floating Nav
+          ],
+        ),
       ),
     );
   }
 }
 
-class _CityCard extends StatelessWidget {
-  final Map<String, String> city;
+class _ParallaxCityCard extends StatelessWidget {
+  final Map<String, dynamic> city;
   final int index;
 
-  const _CityCard({required this.city, required this.index});
+  const _ParallaxCityCard({required this.city, required this.index});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(32),
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
@@ -137,16 +126,9 @@ class _CityCard extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           // Image
-          Hero(
-            tag: 'city_img_${city['name']}',
-            child: Image.network(
-              city['image']!,
-              fit: BoxFit.cover,
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) return child;
-                return Container(color: Colors.grey[200]);
-              },
-            ).animate().shimmer(duration: 1.seconds, delay: 500.ms), // Subtle shimmer on load
+          Image.network(
+            city['image']!,
+            fit: BoxFit.cover,
           ),
           
           // Gradient Overlay
@@ -156,46 +138,65 @@ class _CityCard extends StatelessWidget {
                 colors: [Colors.transparent, Colors.black87],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                stops: [0.5, 1.0],
+                stops: [0.4, 1.0],
               ),
             ),
           ),
           
-          // Text Content
-          Align(
-            alignment: Alignment.bottomLeft,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    city['name']!,
-                    style: GoogleFonts.oswald(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      shadows: [
-                        const Shadow(color: Colors.black45, blurRadius: 4, offset: Offset(0, 2))
-                      ],
+          // Content
+          Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.white.withOpacity(0.2)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.star, color: Colors.amber, size: 14),
+                          const SizedBox(width: 4),
+                          Text(
+                            city['rating'].toString(),
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.white),
+                          ),
+                        ],
+                      ),
                     ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  city['name']!,
+                  style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                    color: Colors.white,
+                    fontSize: 32,
                   ),
-                  Container(
-                    height: 2,
-                    width: 40,
-                    margin: const EdgeInsets.only(top: 8),
-                    decoration: BoxDecoration(
-                       color: const Color(0xFFFF6B6B), // Active Color
-                       borderRadius: BorderRadius.circular(2),
-                    ),
+                ),
+                Text(
+                  city['country']!,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.white70,
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 16),
+                CircleAvatar(
+                  backgroundColor: Colors.white,
+                  radius: 24,
+                  child: const Icon(Icons.arrow_forward, color: Colors.black),
+                ),
+              ],
             ),
           ),
         ],
       ),
-    ).animate(delay: (100 * index).ms).fade().slideY(begin: 0.2, curve: Curves.easeOutBack);
+    ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.1);
   }
 }
