@@ -41,10 +41,18 @@ class _MapScreenState extends ConsumerState<MapScreen> with TickerProviderStateM
               },
             ),
             children: [
-              TileLayer(
-                urlTemplate: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-                subdomains: const ['a', 'b', 'c'],
-                userAgentPackageName: 'com.example.travel_hackathon',
+              // Styled Map Layer
+              ColorFiltered(
+                colorFilter: ColorFilter.mode(
+                  PremiumTheme.primary.withOpacity(0.05), // Subtle Brand Tint
+                  BlendMode.srcOver,
+                ),
+                child: TileLayer(
+                  // CartoDB Voyager: Colorful but muted (Perfect for Pastel Theme)
+                  urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+                  subdomains: const ['a', 'b', 'c'],
+                  userAgentPackageName: 'com.example.travel_hackathon',
+                ),
               ),
               
               // Markers Layer

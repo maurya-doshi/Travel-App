@@ -78,4 +78,23 @@ class ApiAuthRepository implements AuthRepository {
         explorerPoints: 500
      );
   }
+  @override
+  Future<void> requestOtp(String email) async {
+    await _apiService.post('/auth/otp/request', {'email': email});
+  }
+
+  @override
+  Future<UserModel> verifyOtp(String email, String code) async {
+    final response = await _apiService.post('/auth/otp/verify', {
+      'email': email,
+      'code': code
+    });
+
+    return UserModel(
+      uid: response['uid'],
+      email: response['email'],
+      displayName: response['displayName'],
+      explorerPoints: response['explorerPoints'] ?? 0,
+    );
+  }
 }

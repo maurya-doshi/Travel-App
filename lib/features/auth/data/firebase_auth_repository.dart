@@ -12,6 +12,16 @@ class FirebaseAuthRepository implements AuthRepository {
   FirebaseAuthRepository(this._apiService);
 
   @override
+  Future<void> requestOtp(String email) async {
+    throw UnimplementedError('OTP not implemented for Firebase yet');
+  }
+
+  @override
+  Future<UserModel> verifyOtp(String email, String code) async {
+     throw UnimplementedError('OTP not implemented for Firebase yet');
+  }
+
+  @override
   Future<UserModel> register(String email, String password, String displayName) async {
     try {
       // 1. Create User in Firebase

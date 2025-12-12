@@ -37,7 +37,125 @@ const allQuery = (query, params = []) => {
     });
 };
 
+// --- EMAIL CONFIG (NODEMAILER) ---
+const nodemailer = require('nodemailer');
+require('dotenv').config();
+
+let transporter;
+
+async function initEmail() {
+    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+        console.log("Using Real Email Account:", process.env.EMAIL_USER);
+        transporter = nodemailer.createTransport({
+            service: process.env.EMAIL_SERVICE || 'gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS,
+            }
+        });
+    } else {
+        console.log("No Real Email Configured. Generating Ethereal Test Account...");
+        try {
+            const testAccount = await nodemailer.createTestAccount();
+            console.log("Ethereal Account Created:", testAccount.user);
+            transporter = nodemailer.createTransport({
+                host: "smtp.ethereal.email",
+                port: 587,
+                secure: false, // true for 465, false for other ports
+                auth: {
+                    user: testAccount.user,
+                    pass: testAccount.pass,
+                },
+            });
+        } catch (e) {
+            console.error("Failed to create Ethereal account:", e);
+        }
+    }
+}
+initEmail(); // Start initialization
+
+// Helper to send email
+const sendEmail = async (to, code) => {
+    if (!transporter) await initEmail(); // Retry init if failed previously
+
+    const mailOptions = {
+        from: process.env.EMAIL_USER || '"Travel App Demo" <no-reply@example.com>',
+        to: to,
+        subject: 'Your Travel App Login Code',
+        text: `Welcome Back! 🌍\n\nYour verification code is: ${code}\n\nThis code expires in 10 minutes.`,
+        html: `<h3>Welcome Back! 🌍</h3><p>Your verification code is: <strong>${code}</strong></p><p>This code expires in 10 minutes.</p>`
+    };
+
+    try {
+        const info = await transporter.sendMail(mailOptions);
+        console.log(`Email sent to ${to}`);
+
+        // Log Preview URL for Ethereal
+        const previewUrl = nodemailer.getTestMessageUrl(info);
+        if (previewUrl) {
+            console.log("---------------------------------------------------");
+            console.log("✉️  EMAIL PREVIEW URL (Click to see OTP):");
+            console.log(previewUrl);
+            console.log("---------------------------------------------------");
+        }
+    } catch (error) {
+        console.error('Error sending email:', error);
+        throw error;
+    }
+};
+
 // --- AUTH / USER ENDPOINTS ---
+
+// 1. Request OTP (Send Real Email)
+app.post('/auth/otp/request', async (req, res) => {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email required' });
+
+    // Generate 6-digit code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = Date.now() + 10 * 60 * 1000; // 10 mins
+
+    try {
+        // Save to DB (Upsert)
+        await runQuery(`INSERT OR REPLACE INTO otp_codes (email, code, expiresAt) VALUES (?, ?, ?)`,
+            [email, code, expiresAt]);
+
+        await sendEmail(email, code);
+        res.json({ message: 'OTP sent to email' });
+
+    } catch (err) {
+        console.error("OTP Error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// 2. Verify OTP
+app.post('/auth/otp/verify', async (req, res) => {
+    const { email, code } = req.body;
+    try {
+        const record = await getQuery('SELECT * FROM otp_codes WHERE email = ?', [email]);
+
+        if (!record) return res.status(400).json({ error: 'No OTP found for this email' });
+        if (record.code !== code) return res.status(400).json({ error: 'Invalid Code' });
+        if (Date.now() > record.expiresAt) return res.status(400).json({ error: 'Code Expired' });
+
+        // Valid! Create/Update User
+        const uid = 'user_' + email.split('@')[0]; // Simple UID derivation
+        const displayName = email.split('@')[0];   // Default Name
+
+        await runQuery(`
+            INSERT OR REPLACE INTO users (uid, email, displayName, explorerPoints)
+            VALUES (?, ?, ?, COALESCE((SELECT explorerPoints FROM users WHERE uid=?), 0))
+        `, [uid, email, displayName, uid]);
+
+        // Clean up OTP
+        await runQuery('DELETE FROM otp_codes WHERE email = ?', [email]);
+
+        res.json({ uid, email, displayName, token: 'session_token_' + uid });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
 // Get User
 app.get('/users/:uid', async (req, res) => {
@@ -50,11 +168,10 @@ app.get('/users/:uid', async (req, res) => {
     }
 });
 
-// Create/Update User (Sync)
+// Create/Update User (Managed by OTP flow usually, but keeping for direct profile updates)
 app.post('/users', async (req, res) => {
     const { uid, email, displayName, explorerPoints } = req.body;
     try {
-        // Upsert logic
         await runQuery(`
       INSERT OR REPLACE INTO users (uid, email, displayName, explorerPoints)
       VALUES (?, ?, ?, ?)

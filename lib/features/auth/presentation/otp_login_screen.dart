@@ -34,7 +34,7 @@ class _OtpLoginScreenState extends ConsumerState<OtpLoginScreen> {
     super.dispose();
   }
 
-  void _sendOtp() {
+  Future<void> _sendOtp() async {
     final email = _emailController.text.trim();
     if (email.isEmpty || !email.contains('@')) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -44,15 +44,14 @@ class _OtpLoginScreenState extends ConsumerState<OtpLoginScreen> {
     }
 
     setState(() => _isLoading = true);
-
-    // Mock Network Delay
-    Future.delayed(const Duration(seconds: 2), () {
+    try {
+      await ref.read(authRepositoryProvider).requestOtp(email);
+      
       if (!mounted) return;
       setState(() {
         _isLoading = false;
         _isOtpSent = true;
       });
-      // Show Professional Notification
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Verification code sent to $email'),
@@ -61,42 +60,39 @@ class _OtpLoginScreenState extends ConsumerState<OtpLoginScreen> {
         ),
       );
       _otpFocusNode.requestFocus();
-    });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to send OTP: $e'), backgroundColor: Colors.red),
+      );
+    }
   }
 
-  void _demoAutoFill() {
-    _otpController.text = _mockOtp;
-    setState(() {});
-    _verifyOtp();
-  }
-
-  void _verifyOtp() async {
+  Future<void> _verifyOtp() async {
     final otp = _otpController.text;
     if (otp.length != 6) return;
 
     setState(() => _isLoading = true);
+    
+    try {
+      final user = await ref.read(authRepositoryProvider).verifyOtp(_emailController.text.trim(), otp);
 
-    // Mock Network Delay
-    await Future.delayed(const Duration(seconds: 1));
-
-    if (!mounted) return;
-
-    if (otp == _mockOtp) {
       // 1. Success! Create Session
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('user_id', 'user_id_${_emailController.text}'); // Persistent Session
-      await prefs.setString('user_email', _emailController.text);
+      await prefs.setString('user_id', user.uid); 
+      await prefs.setString('user_email', user.email);
 
       // 2. Update App State
-      ref.read(currentUserProvider.notifier).state = 'user_id_${_emailController.text}';
+      ref.read(currentUserProvider.notifier).state = user.uid;
 
       // 3. Navigate
       if (mounted) context.go('/');
-      
-    } else {
+    } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid Code over. Try "123456"'), backgroundColor: Colors.red),
+        SnackBar(content: Text('Invalid Code or Expired: $e'), backgroundColor: Colors.red),
       );
       _otpController.clear();
     }
@@ -272,11 +268,7 @@ class _OtpLoginScreenState extends ConsumerState<OtpLoginScreen> {
         ),
         
         const SizedBox(height: 16),
-        TextButton.icon(
-          onPressed: _demoAutoFill,
-          icon: const Icon(Icons.auto_fix_high, size: 16, color: Colors.blue),
-          label: const Text("Demo: Auto-Fill Code", style: TextStyle(color: Colors.blue)),
-        ),
+        // Demo button removed
         const SizedBox(height: 8),
         TextButton(
           onPressed: () => setState(() => _isOtpSent = false),

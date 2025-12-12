@@ -97,6 +97,13 @@ db.serialize(() => {
     status TEXT DEFAULT 'active'
   )`);
 
+  // 7. OTP Codes (For Real Email Auth)
+  db.run(`CREATE TABLE IF NOT EXISTS otp_codes (
+    email TEXT PRIMARY KEY,
+    code TEXT NOT NULL,
+    expiresAt INTEGER NOT NULL
+  )`);
+
   console.log('Database tables initialized.');
 });
 
