@@ -129,6 +129,22 @@ class ApiSocialRepository implements SocialRepository {
     });
   }
   @override
+  Future<List<Map<String, dynamic>>> getPendingRequests(String eventId) async {
+    final response = await _apiService.get('/events/$eventId/requests');
+    return List<Map<String, dynamic>>.from(response);
+  }
+
+  @override
+  Future<void> acceptRequest(String eventId, String userId) async {
+    await _apiService.post('/events/$eventId/accept', {'userId': userId});
+  }
+
+  @override
+  Future<void> rejectRequest(String eventId, String userId) async {
+    await _apiService.post('/events/$eventId/reject', {'userId': userId});
+  }
+
+  @override
   Future<void> deleteEvent(String eventId, String userId) async {
     await _apiService.delete('/events/$eventId', headers: {'x-user-id': userId});
   }

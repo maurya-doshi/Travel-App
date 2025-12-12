@@ -12,6 +12,7 @@ import 'package:travel_hackathon/features/discovery/presentation/city_selection_
 import 'package:travel_hackathon/features/auth/presentation/auth_providers.dart';
 import 'package:travel_hackathon/features/map/presentation/map_screen.dart'; 
 import 'package:travel_hackathon/features/social/presentation/events_screen.dart'; 
+import 'package:travel_hackathon/features/social/presentation/chat_screen.dart'; 
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _sectionNavigatorKey = GlobalKey<NavigatorState>(); 
@@ -70,8 +71,11 @@ final routerProvider = Provider<GoRouter>((ref) {
             navigatorKey: _shellNavigatorExploreKey, 
             routes: [
               GoRoute(
-                path: '/events',
-                builder: (context, state) => const EventsScreen(city: 'Bangalore'), 
+                path: '/explore/events',
+                builder: (context, state) {
+                  final city = state.uri.queryParameters['city'] ?? 'Bangalore';
+                  return EventsScreen(city: city);
+                }, 
               ),
               GoRoute(
                 path: '/create-event',
@@ -95,6 +99,13 @@ final routerProvider = Provider<GoRouter>((ref) {
             ],
           ),
         ],
+      ),
+      GoRoute(
+        path: '/chat/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return ChatScreen(chatId: id);
+        },
       ),
     ],
   );

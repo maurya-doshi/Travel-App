@@ -138,7 +138,9 @@ class GroupChat {
 *   **Hybrid Auth:**
     *   **Signup:** User provides Email, Password, Name -> OTP Sent -> OTP Verified -> User Created (Password stored).
     *   **Login (Password):** User provides Email/Password -> Verified -> Session Created.
+    *   **Login (Password):** User provides Email/Password -> Verified -> Session Created.
     *   **Login (OTP):** User requests OTP -> Verified -> Session Created.
+    *   **Event Management:** Creators can view, accept, or reject pending join requests (real-time).
 *   **Repository:** `ApiAuthRepository` is the active implementation.
 *   **Security:** Passwords currently stored as plaintext (Hackathon MVP).
 

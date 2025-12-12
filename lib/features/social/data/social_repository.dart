@@ -14,4 +14,7 @@ abstract class SocialRepository {
   Future<void> joinEvent(String eventId, String userId);
   Future<void> createEvent(TravelEvent event);
   Future<void> deleteEvent(String eventId, String userId);
+  Future<List<Map<String, dynamic>>> getPendingRequests(String eventId);
+  Future<void> acceptRequest(String eventId, String userId);
+  Future<void> rejectRequest(String eventId, String userId);
 }

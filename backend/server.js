@@ -286,6 +286,67 @@ app.post('/events', async (req, res) => {
     }
 });
 
+// Delete Event
+app.delete('/events/:id', async (req, res) => {
+    const eventId = req.params.id;
+    const userId = req.headers['x-user-id']; // Authorization check
+
+    try {
+        const event = await getQuery('SELECT creatorId FROM travel_events WHERE id = ?', [eventId]);
+        if (!event) return res.status(404).json({ error: 'Event not found' });
+
+        if (event.creatorId !== userId) {
+            return res.status(403).json({ error: 'Unauthorized: Only the creator can delete this event' });
+        }
+
+        await runQuery('DELETE FROM travel_events WHERE id = ?', [eventId]);
+        res.json({ success: true, message: 'Event deleted' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Get Pending Requests
+app.get('/events/:id/requests', async (req, res) => {
+    try {
+        const requests = await allQuery('SELECT r.userId, u.displayName, u.email FROM event_requests r JOIN users u ON r.userId = u.uid WHERE r.eventId = ?', [req.params.id]);
+        res.json(requests);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Accept Request
+app.post('/events/:id/accept', async (req, res) => {
+    const eventId = req.params.id;
+    const { userId } = req.body; // User to accept
+
+    // In a real app, verify req.headers['x-user-id'] is the creator
+
+    try {
+        // Move from requests to participants
+        await runQuery('INSERT OR IGNORE INTO event_participants (eventId, userId) VALUES (?, ?)', [eventId, userId]);
+        await runQuery('DELETE FROM event_requests WHERE eventId = ? AND userId = ?', [eventId, userId]);
+
+        res.json({ success: true, status: 'accepted' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Reject Request
+app.post('/events/:id/reject', async (req, res) => {
+    const eventId = req.params.id;
+    const { userId } = req.body;
+
+    try {
+        await runQuery('DELETE FROM event_requests WHERE eventId = ? AND userId = ?', [eventId, userId]);
+        res.json({ success: true, status: 'rejected' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Join Event
 app.post('/events/:id/join', async (req, res) => {
     const eventId = req.params.id;

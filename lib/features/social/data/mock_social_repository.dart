@@ -192,4 +192,13 @@ class MockSocialRepository implements SocialRepository {
     await Future.delayed(const Duration(milliseconds: 500));
     _events.removeWhere((e) => e.id == eventId);
   }
+
+  @override
+  Future<List<Map<String, dynamic>>> getPendingRequests(String eventId) async => [];
+
+  @override
+  Future<void> acceptRequest(String eventId, String userId) async {}
+
+  @override
+  Future<void> rejectRequest(String eventId, String userId) async {}
 }
