@@ -18,7 +18,8 @@ db.serialize(() => {
     uid TEXT PRIMARY KEY,
     email TEXT,
     displayName TEXT,
-    explorerPoints INTEGER DEFAULT 0
+    explorerPoints INTEGER DEFAULT 0,
+    password TEXT
   )`);
 
   // 2. Destination Pins Table
@@ -97,11 +98,24 @@ db.serialize(() => {
     status TEXT DEFAULT 'active'
   )`);
 
-  // 7. OTP Codes (For Real Email Auth)
+  // 7. OTP Codes (Updated for Server Logic)
   db.run(`CREATE TABLE IF NOT EXISTS otp_codes (
-    email TEXT PRIMARY KEY,
+    id TEXT PRIMARY KEY,
+    email TEXT NOT NULL,
     code TEXT NOT NULL,
-    expiresAt INTEGER NOT NULL
+    expiresAt INTEGER NOT NULL,
+    verified INTEGER DEFAULT 0,
+    createdAt TEXT
+  )`);
+
+  // 8. User Sessions (For Persisted Login)
+  db.run(`CREATE TABLE IF NOT EXISTS user_sessions (
+    sessionId TEXT PRIMARY KEY,
+    userId TEXT NOT NULL,
+    createdAt TEXT,
+    expiresAt TEXT,
+    isActive INTEGER DEFAULT 1,
+    FOREIGN KEY(userId) REFERENCES users(uid) ON DELETE CASCADE
   )`);
 
   console.log('Database tables initialized.');

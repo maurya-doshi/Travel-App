@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:travel_hackathon/features/map/presentation/map_screen.dart';
-import 'package:travel_hackathon/features/social/presentation/chat_screen.dart';
-import 'package:travel_hackathon/features/social/presentation/events_screen.dart';
-import 'package:travel_hackathon/features/auth/presentation/otp_login_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+// Import your screens
+import 'package:travel_hackathon/features/auth/presentation/signup_screen.dart';
+import 'package:travel_hackathon/features/auth/presentation/login_screen.dart';
 import 'package:travel_hackathon/core/presentation/scaffold_with_navbar.dart';
 import 'package:travel_hackathon/features/auth/presentation/profile_screen.dart';
 import 'package:travel_hackathon/features/social/presentation/create_event_screen.dart';
 import 'package:travel_hackathon/features/discovery/presentation/city_selection_screen.dart';
-
 import 'package:travel_hackathon/features/auth/presentation/auth_providers.dart';
+import 'package:travel_hackathon/features/map/presentation/map_screen.dart'; 
+import 'package:travel_hackathon/features/social/presentation/events_screen.dart'; 
+
+final _rootNavigatorKey = GlobalKey<NavigatorState>();
+final _sectionNavigatorKey = GlobalKey<NavigatorState>(); 
 
 final routerProvider = Provider<GoRouter>((ref) {
   // Global key for valid context in shell
@@ -22,63 +26,65 @@ final routerProvider = Provider<GoRouter>((ref) {
   final userId = ref.watch(currentUserProvider);
 
   return GoRouter(
-    initialLocation: '/login',
+    initialLocation: '/signup',
     navigatorKey: _rootNavigatorKey,
-    // refreshListenable: ValueNotifier(userId), // Ideally needs a real listenable
     redirect: (context, state) {
       final isLoggedIn = userId != null;
-      final isLoggingIn = state.uri.toString() == '/login';
+      final path = state.uri.toString();
+      final isAuthRoute = path == '/signup' || path == '/login';
 
-      if (!isLoggedIn && !isLoggingIn) return '/login';
-      if (isLoggedIn && isLoggingIn) return '/';
+      if (!isLoggedIn && !isAuthRoute) return '/signup';
+      if (isLoggedIn && isAuthRoute) return '/map';
 
       return null;
     },
     routes: [
-      // AUTH
+      // AUTH (No Shell)
+      GoRoute(
+        path: '/signup',
+        builder: (context, state) => const SignupScreen(),
+      ),
       GoRoute(
         path: '/login',
-        builder: (context, state) => const OtpLoginScreen(),
+        builder: (context, state) => const LoginScreen(),
       ),
-
-      // TABS (Shell)
+      // THE SHELL ROUTE (Wraps the tabs)
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
           return ScaffoldWithNavBar(navigationShell: navigationShell);
         },
         branches: [
-          // TAB 1: MAP
+          // BRANCH 1: Map
           StatefulShellBranch(
             navigatorKey: _shellNavigatorMapKey,
             routes: [
               GoRoute(
-                path: '/',
+                path: '/map',
                 builder: (context, state) => const MapScreen(),
               ),
             ],
           ),
-          
-          // TAB 2: EXPLORE (City Selection -> Events)
+
+          // BRANCH 2: Events (or Explore based on the new keys)
           StatefulShellBranch(
-            navigatorKey: _shellNavigatorExploreKey,
+            navigatorKey: _shellNavigatorExploreKey, 
             routes: [
               GoRoute(
-                path: '/explore',
+                path: '/events',
+                builder: (context, state) => const EventsScreen(city: 'Bangalore'), 
+              ),
+              GoRoute(
+                path: '/create-event',
+                builder: (context, state) => const CreateEventScreen(),
+              ),
+              GoRoute(
+                path: '/city-selection',
                 builder: (context, state) => const CitySelectionScreen(),
-                routes: [
-                   GoRoute(
-                    path: 'events', // /explore/events
-                    builder: (context, state) {
-                      final city = state.uri.queryParameters['city'] ?? 'Bangalore';
-                      return EventsScreen(city: city);
-                    },
-                   ),
-                ]
               ),
             ],
           ),
 
-          // TAB 3: PROFILE
+          // BRANCH 3: Profile
           StatefulShellBranch(
             navigatorKey: _shellNavigatorProfileKey,
             routes: [
@@ -89,21 +95,6 @@ final routerProvider = Provider<GoRouter>((ref) {
             ],
           ),
         ],
-      ),
-
-      // GLOBAL ROUTES (Push on top of tabs)
-      GoRoute(
-        path: '/chat/:id',
-        parentNavigatorKey: _rootNavigatorKey, // Hide tabs for chat
-        builder: (context, state) {
-          final chatId = state.pathParameters['id']!;
-          return ChatScreen(chatId: chatId);
-        },
-      ),
-      GoRoute(
-        path: '/create-event',
-        parentNavigatorKey: _rootNavigatorKey, // Hide tabs for create
-        builder: (context, state) => const CreateEventScreen(),
       ),
     ],
   );

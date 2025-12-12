@@ -11,3 +11,5 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
 });
 
 final currentUserProvider = StateProvider<String?>((ref) => null); // Store UID
+final sessionIdProvider = StateProvider<String?>((ref) => null); // Store Session ID
+

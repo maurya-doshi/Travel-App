@@ -12,13 +12,28 @@ class FirebaseAuthRepository implements AuthRepository {
   FirebaseAuthRepository(this._apiService);
 
   @override
-  Future<void> requestOtp(String email) async {
+  Future<OtpResponse> sendOtp(String email, {bool isLogin = false}) async {
     throw UnimplementedError('OTP not implemented for Firebase yet');
   }
 
   @override
-  Future<UserModel> verifyOtp(String email, String code) async {
+  Future<SessionResponse> verifyOtp(String email, String code, {String? displayName, String? password}) async {
      throw UnimplementedError('OTP not implemented for Firebase yet');
+  }
+  
+  @override
+  Future<SessionResponse> login(String email, String password) async {
+     throw UnimplementedError('Login not implemented for Firebase yet');
+  }
+
+  @override
+  Future<bool> validateSession(String sessionId) async {
+    return _firebaseAuth.currentUser != null;
+  }
+
+  @override
+  Future<void> logout(String sessionId) async {
+    await _firebaseAuth.signOut();
   }
 
   @override
@@ -37,18 +52,7 @@ class FirebaseAuthRepository implements AuthRepository {
     }
   }
 
-  @override
-  Future<UserModel> login(String email, String password) async {
-    try {
-       final credential = await _firebaseAuth.signInWithEmailAndPassword(
-        email: email, 
-        password: password
-      );
-      return await _syncUserToBackend(credential.user!, credential.user!.displayName ?? 'User');
-    } catch (e) {
-      throw Exception('Login Failed: $e');
-    }
-  }
+
 
   @override
   Future<UserModel?> getUser(String uid) async {
