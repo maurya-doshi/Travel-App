@@ -28,6 +28,10 @@ class GroupChat {
     );
   }
 
+  factory GroupChat.fromJson(Map<String, dynamic> map) {
+    return GroupChat.fromMap(map, map['id'] as String);
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'eventId': eventId,
@@ -62,6 +66,10 @@ class ChatMessage {
       text: map['text'] as String,
       timestamp: DateTime.parse(map['timestamp'] as String),
     );
+  }
+
+  factory ChatMessage.fromJson(Map<String, dynamic> map) {
+    return ChatMessage.fromMap(map, map['id'] as String);
   }
 
   Map<String, dynamic> toMap() {

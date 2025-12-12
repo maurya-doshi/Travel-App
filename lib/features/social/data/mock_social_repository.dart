@@ -10,10 +10,10 @@ class MockSocialRepository implements SocialRepository {
       id: 'event_louvre_1',
       city: 'Paris',
       title: 'Louvre Guided Tour (English)',
-      description: 'We are a group of 3 looking for 2 more to split a guide cost.',
+
       eventDate: DateTime.now().add(const Duration(days: 2)),
       creatorId: 'user_1',
-      maxParticipants: 5,
+
       participantIds: ['user_1', 'user_2', 'user_3'],
       requiresApproval: true,
       pendingRequestIds: ['user_5'],
@@ -23,10 +23,10 @@ class MockSocialRepository implements SocialRepository {
       id: 'event_dinner_1',
       city: 'Paris',
       title: 'Cheap Ramen Night',
-      description: 'Just grabbing food at Rue Sainte-Anne.',
+
       eventDate: DateTime.now().add(const Duration(hours: 4)),
       creatorId: 'user_4',
-      maxParticipants: 8,
+
       participantIds: ['user_4'],
       requiresApproval: false, // Open to join
       isDateFlexible: true,

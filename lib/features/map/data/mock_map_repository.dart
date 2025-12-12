@@ -13,7 +13,7 @@ class MockMapRepository implements MapRepository {
       name: 'Eiffel Tower Meetup',
       latitude: 48.8584,
       longitude: 2.2945,
-      creatorId: 'user_1',
+
       activeVisitorCount: 124,
       createdAt: DateTime.now().subtract(const Duration(days: 2)),
     ),
@@ -23,7 +23,7 @@ class MockMapRepository implements MapRepository {
       name: 'Louvre Art Walk',
       latitude: 48.8606,
       longitude: 2.3376,
-      creatorId: 'user_2',
+
       activeVisitorCount: 45,
       createdAt: DateTime.now().subtract(const Duration(hours: 5)),
     ),
@@ -33,7 +33,7 @@ class MockMapRepository implements MapRepository {
       name: 'Big Ben Sightseeing',
       latitude: 51.5007,
       longitude: -0.1246,
-      creatorId: 'user_3',
+
       activeVisitorCount: 89,
       createdAt: DateTime.now().subtract(const Duration(days: 1)),
     ),

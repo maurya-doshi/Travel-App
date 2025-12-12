@@ -1,11 +1,18 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart';
 
 class ApiService {
-  // Use 10.0.2.2 for Android Emulator to access localhost
-  // Use localhost for iOS Simulator
-  // Use your machine's IP for physical devices
-  static const String _baseUrl = 'http://10.0.2.2:3000';
+  static String get _baseUrl {
+    if (kIsWeb) return 'http://localhost:3000';
+    try {
+      if (Platform.isAndroid) return 'http://10.0.2.2:3000';
+    } catch (e) {
+      // Platform.isAndroid throws on web, but we handle kIsWeb above.
+    }
+    return 'http://localhost:3000'; // Windows, iOS, macOS
+  }
 
   Future<dynamic> get(String endpoint) async {
     try {

@@ -35,7 +35,7 @@ class EventsScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 4),
-                    Text(event.description),
+                    const SizedBox(height: 8),
                     const SizedBox(height: 8),
                     Row(
                       children: [
@@ -45,7 +45,7 @@ class EventsScreen extends ConsumerWidget {
                         const SizedBox(width: 16),
                         Icon(Icons.people, size: 14, color: Colors.grey[600]),
                         const SizedBox(width: 4),
-                        Text('${event.participantIds.length}/${event.maxParticipants} joined'),
+                        Text('${event.participantIds.length} joined'),
                       ],
                     ),
                   ],

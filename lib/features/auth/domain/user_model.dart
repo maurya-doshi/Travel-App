@@ -23,6 +23,8 @@ class UserModel {
     );
   }
 
+  factory UserModel.fromJson(Map<String, dynamic> map) => UserModel.fromMap(map);
+
   Map<String, dynamic> toMap() {
     return {
       'uid': uid,
