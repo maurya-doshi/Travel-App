@@ -10,26 +10,59 @@ class MockSocialRepository implements SocialRepository {
       id: 'event_louvre_1',
       city: 'Paris',
       title: 'Louvre Guided Tour (English)',
-
       eventDate: DateTime.now().add(const Duration(days: 2)),
       creatorId: 'user_1',
-
       participantIds: ['user_1', 'user_2', 'user_3'],
       requiresApproval: true,
       pendingRequestIds: ['user_5'],
       isDateFlexible: false,
+      status: 'open',
     ),
     TravelEvent(
       id: 'event_dinner_1',
       city: 'Paris',
       title: 'Cheap Ramen Night',
-
       eventDate: DateTime.now().add(const Duration(hours: 4)),
       creatorId: 'user_4',
-
       participantIds: ['user_4'],
       requiresApproval: false, // Open to join
       isDateFlexible: true,
+      status: 'open',
+    ),
+    // BANGALORE EVENTS
+    TravelEvent(
+      id: 'event_blr_1',
+      city: 'Bangalore',
+      title: 'Cubbon Park Morning Run',
+      eventDate: DateTime.now().add(const Duration(days: 1, hours: 2)),
+      creatorId: 'user_blr_1',
+      participantIds: ['user_blr_1', 'user_blr_2', 'test-user-1'],
+      requiresApproval: false,
+      isDateFlexible: false,
+      status: 'open',
+    ),
+    TravelEvent(
+      id: 'event_blr_2',
+      city: 'Bangalore',
+      title: 'Tech Meetup @ Indiranagar',
+      eventDate: DateTime.now().add(const Duration(days: 3, hours: 10)),
+      creatorId: 'user_blr_3',
+      participantIds: ['user_blr_3', 'user_blr_4'],
+      requiresApproval: true,
+      isDateFlexible: true,
+      status: 'open',
+    ),
+    // MUMBAI EVENTS
+    TravelEvent(
+      id: 'event_mum_1',
+      city: 'Mumbai',
+      title: 'Marine Drive Sunset',
+      eventDate: DateTime.now().add(const Duration(hours: 5)),
+      creatorId: 'user_mum_1',
+      participantIds: ['user_mum_1', 'user_mum_2', 'user_mum_5'],
+      requiresApproval: false,
+      isDateFlexible: true,
+      status: 'open',
     ),
   ];
 

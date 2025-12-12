@@ -6,7 +6,7 @@ import 'package:travel_hackathon/features/auth/domain/auth_repository.dart';
 
 class FirebaseAuthRepository implements AuthRepository {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
   final ApiService _apiService;
 
   FirebaseAuthRepository(this._apiService);
