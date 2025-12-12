@@ -22,8 +22,8 @@ const seed = async () => {
 
         // 2. Create Destination Pin
         const pinId = uuidv4();
-        await runQuery(`INSERT OR REPLACE INTO destination_pins (id, city, type, activeVisitorCount) VALUES (?, ?, ?, ?)`,
-            [pinId, "Paris", "destination", 12]);
+        await runQuery(`INSERT OR REPLACE INTO destination_pins (id, city, type, activeVisitorCount, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?)`,
+            [pinId, "Paris", "destination", 12, 48.8566, 2.3522]);
         console.log('Pin created');
 
         // 3. Create Event

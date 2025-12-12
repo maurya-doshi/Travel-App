@@ -80,12 +80,12 @@ app.get('/pins', async (req, res) => {
 
 // Create Pin (Helper for seeding)
 app.post('/pins', async (req, res) => {
-    const { city, type, activeVisitorCount } = req.body;
+    const { city, type, activeVisitorCount, latitude, longitude } = req.body;
     const id = uuidv4();
     try {
-        await runQuery('INSERT INTO destination_pins (id, city, type, activeVisitorCount) VALUES (?, ?, ?, ?)',
-            [id, city, type, activeVisitorCount || 0]);
-        res.json({ id, city, type, activeVisitorCount });
+        await runQuery('INSERT INTO destination_pins (id, city, type, activeVisitorCount, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?)',
+            [id, city, type, activeVisitorCount || 0, latitude || 0, longitude || 0]);
+        res.json({ id, city, type, activeVisitorCount, latitude, longitude });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -176,6 +176,40 @@ app.get('/chats/:eventId', async (req, res) => {
             eventId: chat.eventId,
             memberIds: participants.map(p => p.userId)
         });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Get Messages
+app.get('/chats/:chatId/messages', async (req, res) => {
+    try {
+        const messages = await allQuery('SELECT * FROM chat_messages WHERE chatId = ? ORDER BY timestamp ASC', [req.params.chatId]);
+        // Enhance with sender name? For now just return raw. Frontend might need to fetch user names.
+        // Or we join with users table.
+        const enriched = await Promise.all(messages.map(async (msg) => {
+            const user = await getQuery('SELECT displayName FROM users WHERE uid = ?', [msg.senderId]);
+            return { ...msg, senderName: user ? user.displayName : 'Unknown' };
+        }));
+        res.json(enriched);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Send Message
+app.post('/chats/:chatId/messages', async (req, res) => {
+    const { senderId, text } = req.body;
+    const id = uuidv4();
+    const timestamp = new Date().toISOString();
+    try {
+        await runQuery('INSERT INTO chat_messages (id, chatId, senderId, text, timestamp) VALUES (?, ?, ?, ?, ?)',
+            [id, req.params.chatId, senderId, text, timestamp]);
+
+        // Fetch sender name for response
+        const user = await getQuery('SELECT displayName FROM users WHERE uid = ?', [senderId]);
+
+        res.json({ id, chatId: req.params.chatId, senderId, text, timestamp, senderName: user ? user.displayName : 'Unknown' });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

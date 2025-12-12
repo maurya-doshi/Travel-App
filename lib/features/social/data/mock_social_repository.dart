@@ -96,4 +96,10 @@ class MockSocialRepository implements SocialRepository {
       _messages[groupId] = [newMessage];
     }
   }
+
+  @override
+  Future<void> joinEvent(String eventId, String userId) async {
+    // Mock join
+    await Future.delayed(const Duration(milliseconds: 500));
+  }
 }

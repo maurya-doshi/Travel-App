@@ -26,6 +26,8 @@ db.serialize(() => {
     id TEXT PRIMARY KEY,
     city TEXT NOT NULL,
     type TEXT NOT NULL,
+    latitude REAL,
+    longitude REAL,
     activeVisitorCount INTEGER DEFAULT 0
   )`);
 
@@ -52,8 +54,20 @@ db.serialize(() => {
     FOREIGN KEY(eventId) REFERENCES travel_events(id) ON DELETE CASCADE
   )`);
 
+  // 4a. Chat Messages Table
+  db.run(`CREATE TABLE IF NOT EXISTS chat_messages (
+    id TEXT PRIMARY KEY,
+    chatId TEXT NOT NULL,
+    senderId TEXT NOT NULL,
+    text TEXT NOT NULL,
+    timestamp TEXT NOT NULL,
+    FOREIGN KEY(chatId) REFERENCES group_chats(id) ON DELETE CASCADE,
+    FOREIGN KEY(senderId) REFERENCES users(uid)
+  )`);
+
+
   // 5. Relations Tables (Many-to-Many)
-  
+
   // Pending Requests for Events
   db.run(`CREATE TABLE IF NOT EXISTS event_requests (
     eventId TEXT,

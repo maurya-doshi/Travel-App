@@ -11,4 +11,5 @@ abstract class SocialRepository {
     DateTime? date, 
     bool? flexibleOnly
   });
+  Future<void> joinEvent(String eventId, String userId);
 }

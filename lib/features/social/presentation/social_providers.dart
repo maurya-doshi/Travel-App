@@ -4,8 +4,12 @@ import 'package:travel_hackathon/features/social/data/social_repository.dart';
 import 'package:travel_hackathon/features/social/domain/chat_model.dart';
 import 'package:travel_hackathon/features/social/domain/travel_event_model.dart';
 
+import 'package:travel_hackathon/core/services/api_service_provider.dart';
+import 'package:travel_hackathon/features/social/data/api_social_repository.dart';
+
 final socialRepositoryProvider = Provider<SocialRepository>((ref) {
-  return MockSocialRepository();
+  final apiService = ref.watch(apiServiceProvider);
+  return ApiSocialRepository(apiService);
 });
 
 // Events for a specific city

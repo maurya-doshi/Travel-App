@@ -139,5 +139,35 @@ class GroupChat {
 
 **Your Role (Agent):**
 1.  Read the `lib/` folder to understand existing patterns.
-2.  If asked to build a feature, check which "Team Member" role it falls under.
-3.  **ALWAYS** use the Abstract Interfaces (`SocialRepository`) defined in `domain/`, never call Firebase directly from the UI.
+// ... existing content ...
+
+## 🔄 PART 6: RECENT CHANGES (Backend Connection - 2025-12-12)
+
+**Summary:** The frontend has been connected to the Node.js backend. Mocks are replaced with real API calls.
+
+### 6.1 Backend Updates (`backend/`)
+*   **Schema Changes:**
+    *   `destination_pins`: Added `latitude` (REAL), `longitude` (REAL).
+    *   `chat_messages`: New table for chat history.
+*   **Endpoints:**
+    *   `POST /pins`: Now accepts lat/lng.
+    *   `GET /chats/:chatId/messages`: Fetch message history.
+    *   `POST /chats/:chatId/messages`: Send a message.
+*   **Database:** Accessing `Travel-App/backend/travel_app.db` (SQLite). *Note: DB was reset to apply schema changes.*
+
+### 6.2 Frontend Updates (`lib/`)
+*   **Dependencies:** Added `http` package.
+*   **Core:** Created `ApiService` (`lib/core/services/api_service.dart`) pointing to `http://10.0.2.2:3000` (Android Emulator Localhost).
+*   **Repositories:**
+    *   `ApiMapRepository` (Implemented): Fetches pins from backend. Maps JSON to `DestinationPin`.
+    *   `ApiSocialRepository` (Implemented): Fetches events, joins events, and polls for chat messages.
+    *   `ApiAuthRepository` (Implemented): Handles "Login" via deterministic UUIDv5 generation from email (Hackathon shortcut).
+*   **Providers:**
+    *   `mapProvider` & `socialProvider` now use the `Api*Repository` implementations.
+    *   Added `authRepositoryProvider`.
+
+### 6.3 Action Items for Teammates
+*   **Run Backend:** `cd backend && npm install && npm start`.
+*   **Run Frontend:** `flutter pub get && flutter run`.
+*   **Note:** If testing on iOS Simulator, update `api_service.dart` baseUrl to `http://localhost:3000`.
+
