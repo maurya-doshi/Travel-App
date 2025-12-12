@@ -46,13 +46,28 @@ let transporter;
 async function initEmail() {
     if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
         console.log("Using Real Email Account:", process.env.EMAIL_USER);
-        transporter = nodemailer.createTransport({
-            service: process.env.EMAIL_SERVICE || 'gmail',
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS,
-            }
-        });
+
+        // Check if we are using a specific service or generic SMTP
+        if (process.env.EMAIL_SERVICE) {
+            transporter = nodemailer.createTransport({
+                service: process.env.EMAIL_SERVICE,
+                auth: {
+                    user: process.env.EMAIL_USER,
+                    pass: process.env.EMAIL_PASS,
+                }
+            });
+        } else {
+            // Generic SMTP (Brevo, Outlook, etc.)
+            transporter = nodemailer.createTransport({
+                host: process.env.EMAIL_HOST || 'smtp-relay.brevo.com',
+                port: parseInt(process.env.EMAIL_PORT || '587'),
+                secure: false, // true for 465
+                auth: {
+                    user: process.env.EMAIL_USER,
+                    pass: process.env.EMAIL_PASS,
+                }
+            });
+        }
     } else {
         console.log("No Real Email Configured. Generating Ethereal Test Account...");
         try {
@@ -79,7 +94,7 @@ const sendEmail = async (to, code) => {
     if (!transporter) await initEmail(); // Retry init if failed previously
 
     const mailOptions = {
-        from: process.env.EMAIL_USER || '"Travel App Demo" <no-reply@example.com>',
+        from: process.env.EMAIL_FROM || process.env.EMAIL_USER || '"Travel App" <no-reply@example.com>',
         to: to,
         subject: 'Your Travel App Login Code',
         text: `Welcome Back! 🌍\n\nYour verification code is: ${code}\n\nThis code expires in 10 minutes.`,

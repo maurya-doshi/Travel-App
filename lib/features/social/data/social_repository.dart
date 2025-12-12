@@ -13,4 +13,5 @@ abstract class SocialRepository {
   });
   Future<void> joinEvent(String eventId, String userId);
   Future<void> createEvent(TravelEvent event);
+  Future<void> deleteEvent(String eventId, String userId);
 }

@@ -140,7 +140,6 @@ class MockSocialRepository implements SocialRepository {
     if (_messages.containsKey(groupId)) {
       _messages[groupId]!.add(newMessage);
     } else {
-      _messages[groupId] = [newMessage];
     }
 
     // Push update to stream
@@ -186,5 +185,11 @@ class MockSocialRepository implements SocialRepository {
   Future<void> createEvent(TravelEvent event) async {
     await Future.delayed(const Duration(milliseconds: 500));
     _events.add(event);
+  }
+
+  @override
+  Future<void> deleteEvent(String eventId, String userId) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    _events.removeWhere((e) => e.id == eventId);
   }
 }

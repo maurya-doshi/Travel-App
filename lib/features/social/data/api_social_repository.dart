@@ -128,4 +128,8 @@ class ApiSocialRepository implements SocialRepository {
       'requiresApproval': event.requiresApproval,
     });
   }
+  @override
+  Future<void> deleteEvent(String eventId, String userId) async {
+    await _apiService.delete('/events/$eventId', headers: {'x-user-id': userId});
+  }
 }

@@ -267,6 +267,38 @@ class _MinimalistEventCard extends ConsumerWidget {
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
               ),
               const Spacer(),
+
+              // Ownership Check: Delete Button
+              if (userId != null && userId == event.creatorId)
+                Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: IconButton(
+                    icon: const Icon(Icons.delete_outline, color: Colors.grey),
+                    onPressed: () async {
+                       final confirm = await showDialog<bool>(
+                         context: context, 
+                         builder: (c) => AlertDialog(
+                           title: const Text('Delete Event?'),
+                           content: const Text('This cannot be undone.'),
+                           actions: [
+                             TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Cancel')),
+                             TextButton(onPressed: () => Navigator.pop(c, true), child: const Text('Delete', style: TextStyle(color: Colors.red))),
+                           ],
+                         )
+                       );
+                       
+                       if (confirm == true) {
+                         // userId matches event.creatorId check above ensures userId is not null here
+                         await ref.read(socialRepositoryProvider).deleteEvent(event.id, userId!);
+                         // ignore: unused_result
+                         ref.refresh(eventsForCityProvider(event.city));
+                         if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Event Deleted')));
+                         }
+                       }
+                    }, 
+                  ),
+                ),
               
               if (isParticipant)
                 OutlinedButton(

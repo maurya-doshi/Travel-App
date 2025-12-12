@@ -36,6 +36,20 @@ class ApiService {
     }
   }
 
+
+  Future<dynamic> delete(String endpoint, {Map<String, String>? headers}) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('$_baseUrl$endpoint'),
+        headers: headers,
+        // No body usually for delete
+      );
+      return _handleResponse(response);
+    } catch (e) {
+      throw Exception('Failed to connect to backend: $e');
+    }
+  }
+
   dynamic _handleResponse(http.Response response) {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return jsonDecode(response.body);

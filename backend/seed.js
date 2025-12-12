@@ -1,7 +1,7 @@
-const { v4: uuidv4 } = require('uuid');
 const db = require('./database');
+const { v4: uuidv4 } = require('uuid');
 
-const runQuery = (query, params = []) => {
+const run = (query, params = []) => {
     return new Promise((resolve, reject) => {
         db.run(query, params, function (err) {
             if (err) reject(err);
@@ -11,49 +11,71 @@ const runQuery = (query, params = []) => {
 };
 
 const seed = async () => {
-    console.log('Seeding database...');
-
     try {
-        // 1. Create User
-        const userId = "test-user-1";
-        await runQuery(`INSERT OR REPLACE INTO users (uid, email, displayName, explorerPoints) VALUES (?, ?, ?, ?)`,
-            [userId, "demo@travelapp.com", "Demo Traveler", 100]);
-        console.log('User created');
+        console.log("🌱 Starting Seeding...");
 
-        // 2. Create Destination Pins
-        const pinId1 = uuidv4();
-        await runQuery(`INSERT OR REPLACE INTO destination_pins (id, city, type, activeVisitorCount, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?)`,
-            [pinId1, "Bangalore", "destination", 142, 12.9716, 77.5946]);
+        // 1. Clear Tables
+        await run("DELETE FROM chat_messages");
+        await run("DELETE FROM group_chats");
+        await run("DELETE FROM event_participants");
+        await run("DELETE FROM travel_events");
+        await run("DELETE FROM destination_pins");
+        await run("DELETE FROM users");
 
-        const pinId2 = uuidv4();
-        await runQuery(`INSERT OR REPLACE INTO destination_pins (id, city, type, activeVisitorCount, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?)`,
-            [pinId2, "Mumbai", "destination", 98, 19.0760, 72.8777]);
-        console.log('Pins created');
+        // 2. Create Users
+        const aliceId = 'user_alice';
+        const bobId = 'user_bob';
 
-        // 3. Create Event in Bangalore
-        const eventId = uuidv4();
-        await runQuery(`INSERT OR REPLACE INTO travel_events (id, city, title, eventDate, isDateFlexible, creatorId, requiresApproval) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            [eventId, "Bangalore", "Cubbon Park Walk", new Date().toISOString(), 0, userId, 0]);
-        console.log('Event created');
+        await run("INSERT INTO users (uid, email, displayName, explorerPoints) VALUES (?, ?, ?, ?)",
+            [aliceId, 'alice@example.com', 'Alice Explorer', 120]);
 
-        // 4. Create Chat
-        const chatId = uuidv4();
-        await runQuery(`INSERT OR REPLACE INTO group_chats (id, eventId) VALUES (?, ?)`,
-            [chatId, eventId]);
-        console.log('Chat created');
+        await run("INSERT INTO users (uid, email, displayName, explorerPoints) VALUES (?, ?, ?, ?)",
+            [bobId, 'bob@example.com', 'Bob The Builder', 50]);
 
-        // 5. Add Participant
-        await runQuery(`INSERT OR REPLACE INTO event_participants (eventId, userId) VALUES (?, ?)`,
-            [eventId, userId]);
+        console.log("✅ Users Created");
 
-    } catch (err) {
-        console.error('Error seeding:', err);
-    } finally {
-        console.log('Seeding complete.');
-        // Keep connection open or close? Script usually exits.
-        // db.close(); // db.js doesn't export close cleanly but process exit will handle it
+        // 3. Create Pins
+        // Bangalore
+        await run("INSERT INTO destination_pins (id, city, type, latitude, longitude, activeVisitorCount) VALUES (?, ?, ?, ?, ?, ?)",
+            [uuidv4(), 'Bangalore', 'point_of_interest', 12.9716, 77.5946, 5]);
+
+        // Paris
+        await run("INSERT INTO destination_pins (id, city, type, latitude, longitude, activeVisitorCount) VALUES (?, ?, ?, ?, ?, ?)",
+            [uuidv4(), 'Paris', 'point_of_interest', 48.8566, 2.3522, 120]);
+
+        console.log("✅ Pins Created");
+
+        // 4. Create Events
+        const event1Id = uuidv4();
+        await run(`INSERT INTO travel_events (id, city, title, eventDate, isDateFlexible, creatorId, requiresApproval) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [event1Id, 'Bangalore', 'Weekend Tech Meetup', new Date().toISOString(), 0, aliceId, 0]);
+
+        const event2Id = uuidv4();
+        await run(`INSERT INTO travel_events (id, city, title, eventDate, isDateFlexible, creatorId, requiresApproval) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [event2Id, 'Bangalore', 'Nandi Hills Sunrise', new Date(Date.now() + 86400000).toISOString(), 1, bobId, 1]);
+
+        console.log("✅ Events Created");
+
+        // 5. Participants & Chats
+        const chat1Id = uuidv4();
+        await run("INSERT INTO group_chats (id, eventId) VALUES (?, ?)", [chat1Id, event1Id]);
+
+        // Alice matches Event1
+        await run("INSERT INTO event_participants (eventId, userId) VALUES (?, ?)", [event1Id, aliceId]);
+
+        // Chat Messages
+        await run("INSERT INTO chat_messages (id, chatId, senderId, text, timestamp) VALUES (?, ?, ?, ?, ?)",
+            [uuidv4(), chat1Id, aliceId, 'Hey everyone! Excited for the meetup.', new Date().toISOString()]);
+
+        console.log("✅ Chats & Participants Created");
+        console.log("🎉 Seeding Complete!");
+
+    } catch (e) {
+        console.error("❌ Seeding Failed:", e);
     }
 };
 
-// Wait for DB init in database.js (serialized)
+// Wait for DB connection
 setTimeout(seed, 1000);
