@@ -614,6 +614,53 @@ app.post('/auth/login', async (req, res) => {
     }
 });
 
+// --- QUESTS ---
+
+// Get API for Quests in a City (Unordered, Proximity Logic on Client)
+app.get('/quests', async (req, res) => {
+    const { city, userId } = req.query;
+    try {
+        const quests = await allQuery('SELECT * FROM quest_locations WHERE city = ?', [city]);
+
+        let completedIds = [];
+        if (userId) {
+            const completed = await allQuery('SELECT questId FROM user_quests WHERE userId = ?', [userId]);
+            completedIds = completed.map(c => c.questId);
+        }
+
+        const enriched = quests.map(q => ({
+            ...q,
+            isCompleted: completedIds.includes(q.id)
+        }));
+
+        res.json(enriched);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Complete a Quest (Triggered by Proximity)
+app.post('/quests/:id/complete', async (req, res) => {
+    const { userId } = req.body;
+    const questId = req.params.id;
+    const timestamp = new Date().toISOString();
+
+    try {
+        // 1. Mark as completed
+        await runQuery('INSERT OR IGNORE INTO user_quests (userId, questId, completedAt) VALUES (?, ?, ?)', [userId, questId, timestamp]);
+
+        // 2. Award Points
+        const quest = await getQuery('SELECT points FROM quest_locations WHERE id = ?', [questId]);
+        if (quest) {
+            await runQuery('UPDATE users SET explorerPoints = explorerPoints + ? WHERE uid = ?', [quest.points, userId]);
+        }
+
+        res.json({ success: true, pointsAwarded: quest ? quest.points : 0 });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });

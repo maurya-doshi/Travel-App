@@ -118,6 +118,42 @@ db.serialize(() => {
     FOREIGN KEY(userId) REFERENCES users(uid) ON DELETE CASCADE
   )`);
 
+  // --- QUESTS ---
+  db.run(`CREATE TABLE IF NOT EXISTS quest_locations (
+      id TEXT PRIMARY KEY,
+      city TEXT,
+      name TEXT,
+      description TEXT,
+      latitude REAL,
+      longitude REAL,
+      points INTEGER
+  )`); // Points of Interest
+
+  db.run(`CREATE TABLE IF NOT EXISTS user_quests (
+      userId TEXT,
+      questId TEXT,
+      completedAt TEXT,
+      PRIMARY KEY (userId, questId)
+  )`);
+
+  // Seed Quests (Bangalore)
+  const quests = [
+    { id: 'q1', city: 'Bangalore', name: 'Cubbon Park', desc: 'The lung of the city.', lat: 12.9763, lng: 77.5929, pts: 100 },
+    { id: 'q2', city: 'Bangalore', name: 'Lalbagh', desc: 'Famous botanical garden.', lat: 12.9507, lng: 77.5848, pts: 150 },
+    { id: 'q3', city: 'Bangalore', name: 'Bangalore Palace', desc: 'Tudor-style architecture.', lat: 12.9988, lng: 77.5921, pts: 200 },
+    { id: 'q4', city: 'Bangalore', name: 'Vidhana Soudha', desc: 'Legislative building.', lat: 12.9797, lng: 77.5912, pts: 100 },
+    { id: 'q5', city: 'Bangalore', name: 'Tipu Sultan Palace', desc: 'Summer residence.', lat: 12.9594, lng: 77.5737, pts: 120 },
+    { id: 'q6', city: 'Bangalore', name: 'ISKCON Temple', desc: 'Krishna temple on hill.', lat: 13.0098, lng: 77.5511, pts: 150 },
+    { id: 'q7', city: 'Bangalore', name: 'UB City', desc: 'Luxury mall and skyline.', lat: 12.9719, lng: 77.5960, pts: 80 },
+    { id: 'q8', city: 'Bangalore', name: 'Commercial Street', desc: 'Shopping hub.', lat: 12.9822, lng: 77.6083, pts: 50 },
+    { id: 'q9', city: 'Bangalore', name: 'Ulsoor Lake', desc: 'Boating and islands.', lat: 12.9830, lng: 77.6200, pts: 90 },
+    { id: 'q10', city: 'Bangalore', name: 'Nandi Hills', desc: 'Sunrise view point.', lat: 13.3702, lng: 77.6835, pts: 300 }
+  ];
+
+  const insertQuest = db.prepare("INSERT OR IGNORE INTO quest_locations (id, city, name, description, latitude, longitude, points) VALUES (?, ?, ?, ?, ?, ?, ?)");
+  quests.forEach(q => insertQuest.run(q.id, q.city, q.name, q.desc, q.lat, q.lng, q.pts));
+  insertQuest.finalize();
+
   console.log('Database tables initialized.');
 });
 
