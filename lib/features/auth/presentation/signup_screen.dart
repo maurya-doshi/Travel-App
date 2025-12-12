@@ -27,24 +27,39 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       final email = _emailController.text.trim();
       final password = _passwordController.text.trim();
 
-      if (name.isEmpty || email.isEmpty) {
-        throw Exception('Please fill all fields');
+      if (name.isEmpty || email.isEmpty || password.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+           const SnackBar(content: Text('Please fill all fields'), backgroundColor: Colors.orangeAccent),
+        );
+        return;
       }
 
-      // Call Auth Repository
-      final user = await ref.read(authRepositoryProvider).register(email, password, name);
-      
-      // Update Global User State
-      ref.read(currentUserProvider.notifier).state = user.uid;
+      // Step 1: Send OTP first (Signup Flow)
+      final otpResponse = await ref.read(authRepositoryProvider).sendOtp(email); // isLogin false by default
 
+      if (!otpResponse.success) {
+         throw Exception(otpResponse.message);
+      }
+      
+      // Step 2: Navigate to Verify Screen
       if (mounted) {
-        context.go('/'); // Go to Map
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => OtpVerificationScreen(
+              email: email,
+              otpHint: otpResponse.otp,
+              displayName: name,
+              password: password, // Pass password to save after verification
+            ),
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: $e'),
+            content: Text('Error: ${e.toString().replaceAll("Exception:", "")}'),
             behavior: SnackBarBehavior.floating,
             backgroundColor: Colors.redAccent,
           )
@@ -274,51 +289,28 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
                         Row(children: [
                           Expanded(child: Divider(color: Colors.white24)),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Text("OR", style: GoogleFonts.lato(color: Colors.white54, fontSize: 12)),
-                          ),
-                          Expanded(child: Divider(color: Colors.white24)),
                         ]).animate().fade(delay: 700.ms),
 
                         const SizedBox(height: 24),
 
-                        // EMAIL OTP BUTTON (Primary for Hackathon Challenge)
-                        ElevatedButton.icon(
-                          onPressed: _isLoading ? null : _handleOtpLogin,
-                          icon: const Icon(Icons.email_outlined, size: 24),
-                          label: Text(
-                            'Continue with Email OTP', 
-                            style: GoogleFonts.lato(fontSize: 16, fontWeight: FontWeight.bold)
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF00BFA6), // Teal
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
+                        TextButton(
+                          onPressed: () => context.go('/login'),
+                          child: RichText(
+                            text: TextSpan(
+                              text: "Already have an account? ",
+                              style: GoogleFonts.lato(color: Colors.white70),
+                              children: [
+                                TextSpan(
+                                  text: "Login",
+                                  style: GoogleFonts.lato(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ).animate().fade(delay: 800.ms).slideY(begin: 0.2),
-
-                        const SizedBox(height: 12),
-
-                        OutlinedButton.icon(
-                          onPressed: _isLoading ? null : _handleGoogleSignIn,
-                          icon: const Icon(Icons.g_mobiledata, size: 28),
-                          label: Text(
-                            'Continue with Google', 
-                            style: GoogleFonts.lato(fontSize: 16, fontWeight: FontWeight.w600)
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.white,
-                            side: const BorderSide(color: Colors.white30),
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                        ).animate().fade(delay: 900.ms).slideY(begin: 0.2),
+                        ).animate().fade(delay: 800.ms),
                       ],
                     ),
                   ),
@@ -351,18 +343,21 @@ class _GlassTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.3), // Dark glass for contrast
+        color: Colors.white.withOpacity(0.95), // Corrected visibility
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.white.withOpacity(0.2)),
+        boxShadow: [
+           BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))
+        ]
       ),
       child: TextField(
         controller: controller,
         obscureText: obscureText,
-        style: GoogleFonts.lato(color: Colors.white),
+        style: GoogleFonts.lato(color: Colors.black87), // Dark Text
         decoration: InputDecoration(
-          prefixIcon: Icon(icon, color: Colors.white, size: 20),
+          prefixIcon: Icon(icon, color: Colors.blueGrey, size: 20), // Dark Icon
           hintText: hintText,
-          hintStyle: GoogleFonts.lato(color: Colors.white70), // Distinct white hint
+          hintStyle: GoogleFonts.lato(color: Colors.black54), // Dark Hint
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
         ),

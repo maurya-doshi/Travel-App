@@ -11,12 +11,14 @@ class OtpVerificationScreen extends ConsumerStatefulWidget {
   final String email;
   final String? displayName;
   final String? otpHint; // For hackathon demo - shows the OTP
+  final String? password;
 
   const OtpVerificationScreen({
     super.key,
     required this.email,
     this.displayName,
     this.otpHint,
+    this.password,
   });
 
   @override
@@ -59,6 +61,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
         widget.email,
         _otp,
         displayName: widget.displayName,
+        password: widget.password,
       );
 
       // Store session
@@ -76,7 +79,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
         context.go('/');
       }
     } catch (e) {
-      setState(() => _errorMessage = 'Invalid or expired OTP. Please try again.');
+      setState(() => _errorMessage = e.toString().replaceAll('Exception:', '').trim());
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -249,7 +252,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                                 const SizedBox(width: 8),
                                 Text(
                                   'Demo OTP: ${widget.otpHint}',
-                                  style: GoogleFonts.mono(
+                                  style: GoogleFonts.robotoMono(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -270,29 +273,40 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                               height: 55,
                               margin: EdgeInsets.only(right: index < 5 ? 8 : 0),
                               decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.3),
+                                color: Colors.white,
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
                                   color: _focusNodes[index].hasFocus
-                                      ? Colors.white
-                                      : Colors.white.withOpacity(0.3),
+                                      ? const Color(0xFF6A1B9A)
+                                      : Colors.grey.shade300,
                                   width: 2,
                                 ),
+                                boxShadow: [
+                                  BoxShadow(
+                                     color: Colors.black12,
+                                     blurRadius: 4,
+                                     offset: const Offset(0, 2),
+                                  )
+                                ]
                               ),
                               child: TextField(
                                 controller: _controllers[index],
                                 focusNode: _focusNodes[index],
                                 textAlign: TextAlign.center,
+                                textAlignVertical: TextAlignVertical.center, // Vertically center text
                                 keyboardType: TextInputType.number,
                                 maxLength: 1,
-                                style: GoogleFonts.oswald(
-                                  color: Colors.white,
+                                cursorColor: const Color(0xFF6A1B9A),
+                                style: GoogleFonts.lato( // Switch to Lato for clean numbers
+                                  color: Colors.black,
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
                                 ),
                                 decoration: const InputDecoration(
                                   counterText: '',
                                   border: InputBorder.none,
+                                  contentPadding: EdgeInsets.zero, // Remove default padding
+                                  isDense: true, // Reduce height usage
                                 ),
                                 inputFormatters: [
                                   FilteringTextInputFormatter.digitsOnly,

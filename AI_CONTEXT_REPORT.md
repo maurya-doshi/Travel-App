@@ -35,6 +35,7 @@ Solo traveling is lonely. Existing apps (Booking.com, TripAdvisor) are transacti
 *   **Riverpod** (State Management - STRICTLY use `@riverpod` or `Provider`. No `Bloc`, no `GetX`).
 *   **GoRouter** (Navigation - STRICTLY use URI-based routing `/chat/123`, not `Navigator.push`).
 *   **Flutter Map** (OpenStreetMap - Free, no Google API Keys needed for MVP).
+*   **Backend:** Node.js (Express) + SQLite (Local).
 
 **Folder Structure (Feature-First Clean Architecture):**
 *   **Rule:** Code MUST be inside its specific feature folder.
@@ -44,13 +45,13 @@ Solo traveling is lonely. Existing apps (Booking.com, TripAdvisor) are transacti
 lib/
 ├── core/                   # Shared logic (Theme, Router, Extensions)
 ├── features/
-│   ├── auth/               # User Authentication (Member 1)
-│   ├── map/                # Pins, User Location, displaying the Map (Member 2)
-│   ├── social/             # Events, Bulletin Board, Chat Logic (Member 3)
-│   └── discovery/          # Hotels, Quests, Gamification (Member 4)
-│       ├── data/           # Repositories (Impl), Data Sources
-│       ├── domain/         # Models (Pure Dart), Abstract Interfaces
-│       └── presentation/   # Widgets, Riverpod Providers
+├── auth/               # User Authentication (Member 1)
+├── map/                # Pins, User Location, displaying the Map (Member 2)
+├── social/             # Events, Bulletin Board, Chat Logic (Member 3)
+└── discovery/          # Hotels, Quests, Gamification (Member 4)
+    ├── data/           # Repositories (Impl), Data Sources
+    ├── domain/         # Models (Pure Dart), Abstract Interfaces
+    └── presentation/   # Widgets, Riverpod Providers
 ```
 
 ---
@@ -62,10 +63,11 @@ lib/
 ### 3.1 User Model (`lib/features/auth/domain/user_model.dart`)
 ```dart
 class UserModel {
-  final String uid;           // Firebase UID
+  final String uid;
   final String email;
   final String displayName;
   final int explorerPoints;   // Gamification Score
+  // Note: Password is stored in DB but NOT in this model
 }
 ```
 
@@ -76,6 +78,8 @@ class DestinationPin {
   final String id;
   final String city;          // "Paris" (Used availability grouping)
   final String type;          // 'destination' | 'hotel'
+  final double latitude;
+  final double longitude;
   final int activeVisitorCount; // "12 people here now"
 }
 ```
@@ -124,101 +128,36 @@ class GroupChat {
 *   *Case A (Open Event):* User is added to `participantIds` immediately. Navigates to `/chat/:eventId`.
 *   *Case B (Approval Required):* User is added to `pendingRequestIds`. Button changes to "Pending". Creator must accept them.
 
-**Step 4: The Discovery (Discovery Team)**
-*   User navigates to `/discovery`.
-*   **Hotels:** Display List. *Logic:* Sort by "Most Travelers Staying".
-*   **Quests:** Display List. *Logic:* If Type == 'co-op', show "Find Partner" button.
-
 ---
 
-## 🛠️ PART 5: DEVELOPMENT STRATEGY
+## 🔄 PART 6: LATEST STATE (Real Backend & Hybrid Auth - 2025-12-12 Part 3)
 
-**Current Status:**
-*   The project uses **MOCK REPOSITORIES** (`MockMapRepository`, `MockSocialRepository`).
-*   **Rule:** Maintain the Mocks until the backend is fully ready. This allows the UI team to work without being blocked by Firebase bugs.
+**Summary:** The application is now fully powered by a local Node.js + SQLite backend. Firebase has been sidelined for Authentication in favor of a custom Hybrid Auth system.
 
-**Your Role (Agent):**
-1.  Read the `lib/` folder to understand existing patterns.
+### 6.1 Authentication System (`features/auth`)
+*   **Hybrid Auth:**
+    *   **Signup:** User provides Email, Password, Name -> OTP Sent -> OTP Verified -> User Created (Password stored).
+    *   **Login (Password):** User provides Email/Password -> Verified -> Session Created.
+    *   **Login (OTP):** User requests OTP -> Verified -> Session Created.
+*   **Repository:** `ApiAuthRepository` is the active implementation.
+*   **Security:** Passwords currently stored as plaintext (Hackathon MVP).
 
----
+### 6.2 Backend Architecture (`backend/`)
+*   **Stack:** Node.js (Express) + SQLite (`travel_app.db`).
+*   **Startup:** `cd backend && node server.js`.
+*   **Environment:** Requires `.env` file with email credentials (Brevo/SMTP).
 
-## 🔄 PART 6: RECENT CHANGES (Backend Connection - 2025-12-12)
+### 6.3 Schema Updates
+1.  `users`: Added `password` (TEXT).
+2.  `otp_codes`: Tracks email verification codes.
+3.  `user_sessions`: Manages active login sessions (expiry, tokens).
 
-**Summary:** The frontend has been connected to the Node.js backend. Mocks are replaced with real API calls.
-
-### 6.1 Backend Updates (`backend/`)
-*   **Schema Changes:**
-    *   `destination_pins`: Added `latitude` (REAL), `longitude` (REAL).
-    *   `chat_messages`: New table for chat history.
-*   **Endpoints:**
-    *   `POST /pins`: Now accepts lat/lng.
-    *   `GET /chats/:chatId/messages`: Fetch message history.
-    *   `POST /chats/:chatId/messages`: Send a message.
-*   **Database:** Accessing `Travel-App/backend/travel_app.db` (SQLite). *Note: DB was reset to apply schema changes.*
-
-# AI Context Report
-
-## Current State
-**Status:** Feature Complete (Mock Mode)
-**Theme:** Premium Minimalist (Black/White)
-**Backend:** Mock Data (Firebase Disabled)
-
-## Recent Changes
-- **Premium UI Overhaul:**
-    - Switched from Purple/Glassmorphism to High-Contrast Black/White.
-    - Implemented "Floating Pill" Navigation.
-    - Added "Cinematic Parallax" Carousel for City Selection.
-    - Redesigned `EventsScreen` with editorial layout.
-- **Backend Pivot:**
-    - Disabled Firebase Initialization in `main.dart` to resolve build/runtime errors.
-    - Switched `authRepositoryProvider` to `ApiAuthRepository` (Mock Implementation).
-    - Verified Login/Signup flows using local state.
-- **Refactoring:**
-    - `PremiumTheme` created and applied globally.
-    - `SignupScreen` and `ProfileScreen` updated to match new design.
-
-### 6.3 Action Items for Teammates
-*   **Run Backend:** `cd backend && npm install && npm start`.
-*   **Run Frontend:** `flutter pub get && flutter run`.
-### 6.4 Schema alignment & Demo Decisions (2025-12-12)
-*   **Resolved Schema Mismatches:**
-    *   `DestinationPin`: Removed `creatorId` (Backend does not store it).
-    *   `TravelEvent`: Removed `description` and `maxParticipants` ( Backend does not support them yet). Frontend updated to avoid crashes.
-*   **Demo Strategy (Hackathon Focus):**
-    *   **Map:** `activeVisitorCount` is currently **MOCKED/STATIC** in the database. Dynamic aggregation is postponed.
-    *   **Locations:** Shifting focus to **Bangalore** and **Mumbai** for the demo.
-    *   **Features:** Prioritizing "Join Event" flow over complex backend validation.
-
----
-
-## 🎨 PART 7: UI REDESIGN & RESTORATION (2025-12-12 Part 2)
-
-**Summary:** Completed a comprehensive UI overhaul (Glassmorphism, Animations) and restored the full Backend+Firebase integration after the demo.
-
-### 7.1 Premium UI Overhaul
-*   **Design Language:** Glassmorphism (Blur effects), Dark/Purple Gradient Theme, `flutter_animate` for entry effects.
-*   **Key Screens Updated:**
-    *   `SignupScreen`: Animated entry, glass input fields (Dark glass for contrast).
-    *   `MapScreen`: Full-screen map, Floating Search Bar, Gradient FAB.
-    *   `EventsScreen`: Parallax Header, Premium Event Cards.
-    *   `CitySelectionScreen`: Staggered Grid Animations.
-    *   `NavigationBar`: Floating Dock style.
-*   **Fixes:**
-    *   **Map FAB Overlap:** Added bottom margin to avoid collision with Floating Nav Bar.
-    *   **Input Contrast:** Switched to "Dark Glass" fields to make white text visible.
-
-### 7.2 Backend & Auth Restoration
-*   **Firebase Re-enabled:** `firebase_core`, `firebase_auth`, `google_sign_in` are active.
-*   **Auth Repository:** Switched back to `FirebaseAuthRepository` (Real Firebase) from Mock.
-*   **Backend Connection:** `ApiSocialRepository` and `ApiMapRepository` are active and pointing to `localhost:3000`.
-
-### 7.3 Known Issues & Workarounds
-1.  **Windows Build Failure:**
-    *   *Issue:* C++ Linker Error with Firebase SDK on Windows.
-    *   *Workaround:* Develop/Run on **Chrome** (`flutter run -d chrome`) or Android/iOS.
-2.  **Web Google Auth (People API):**
-    *   *Issue:* "People API not enabled" error when signing in.
-    *   *Fix:* Restricted `GoogleSignIn` capability to `scopes: ['email']` in `FirebaseAuthRepository`.
-    *   *Fallback:* If it fails, enable People API in Google Cloud Console.
-3.  **Data Persistence:**
-    *   The app currently points to the local SQLite `backend/travel_app.db`. Ensure `npm start` is running.
+### 6.4 Teammate Setup Guide
+1.  **Backend:**
+    *   Navigate to `backend/`.
+    *   Create `.env` file (copy from snippet/team chat).
+    *   Run `npm install`.
+    *   Run `node server.js` (Ensure it says "Connected to SQLite database").
+2.  **Frontend:**
+    *   Run `flutter pub get`.
+    *   Run `flutter run -d chrome`.

@@ -9,30 +9,7 @@ class ApiAuthRepository implements AuthRepository {
 
   ApiAuthRepository(this._apiService);
 
-  @override
-  Future<UserModel> login(String email, String password) async {
-    // Backend doesn't have login, only /users/:uid or create /users.
-    // For hackathon, we simulate login by fetching user by email? 
-    // Backend: GET /users/:uid
-    // We don't have endpoints to search by email!
-    // We can fetch user if we know UID. 
-    // Real auth is hard.
-    // Proposal: "Login" just creates a new session or we reuse a hardcoded user or try to find logic.
-    // Let's implement a "fake" login that registers if not exists or just uses a consistent ID for email?
-    // Or just use the 'register' flow which is upsert in backend.
-    
-    // Simplification: Login = Register (Upsert)
-    // We generate a deterministic UID from email? No, UUID.
-    // Let's assume the user enters UID or we just create a new one.
-    // Hackathon shortcut: Login creates/gets user.
-    
-    // Proper way: We need endpoint to find user by email.
-    // I'll skip implementing 'find by email' in backend for now unless really needed.
-    // I will treat login as "register/login" with upsert.
-    
-    final uid = _uuid.v5(Uuid.NAMESPACE_URL, email); // Deterministic UID based on email!
-    return register(email, password, email.split('@')[0]);
-  }
+
 
   @override
   Future<UserModel> register(String email, String password, String displayName) async {
@@ -79,22 +56,77 @@ class ApiAuthRepository implements AuthRepository {
      );
   }
   @override
-  Future<void> requestOtp(String email) async {
-    await _apiService.post('/auth/otp/request', {'email': email});
+  Future<OtpResponse> sendOtp(String email, {bool isLogin = false}) async {
+    // Adapter: Call local backend endpoint (simple)
+    try {
+      final response = await _apiService.post('/auth/otp/request', {
+        'email': email,
+        'isLogin': isLogin,
+      });
+      return OtpResponse(
+        success: true, 
+        message: response['message'] ?? 'OTP Sent',
+      );
+    } catch (e) {
+      // Extract error message from API exception if possible
+      final msg = e.toString().replaceAll('Exception:', '').trim();
+      return OtpResponse(success: false, message: msg);
+    }
   }
 
   @override
-  Future<UserModel> verifyOtp(String email, String code) async {
+  Future<SessionResponse> login(String email, String password) async {
+    try {
+      final response = await _apiService.post('/auth/login', {
+        'email': email,
+        'password': password,
+      });
+
+      return SessionResponse(
+        sessionId: response['session']['sessionId'],
+        expiresAt: response['session']['expiresAt'],
+        user: UserModel(
+          uid: response['user']['uid'],
+          email: response['user']['email'],
+          displayName: response['user']['displayName'],
+          explorerPoints: response['user']['explorerPoints'] ?? 0,
+        ),
+      );
+    } catch (e) {
+      // Reassign or rethrow with cleaner message
+       throw Exception(e.toString().replaceAll('Exception:', '').trim());
+    }
+  }
+
+  @override
+  Future<SessionResponse> verifyOtp(String email, String code, {String? displayName, String? password}) async {
+    // Adapter: Call local backend endpoint
     final response = await _apiService.post('/auth/otp/verify', {
       'email': email,
-      'code': code
+      'code': code,
+      'displayName': displayName,
+      'password': password, // Pass password if from signup
     });
 
-    return UserModel(
-      uid: response['uid'],
-      email: response['email'],
-      displayName: response['displayName'],
-      explorerPoints: response['explorerPoints'] ?? 0,
+    return SessionResponse(
+      sessionId: response['token'], // Map token to sessionId
+      expiresAt: DateTime.now().add(const Duration(days: 7)).toIso8601String(), 
+      user: UserModel(
+        uid: response['uid'],
+        email: response['email'],
+        displayName: response['displayName'],
+        explorerPoints: response['explorerPoints'] ?? 0,
+      ),
     );
+  }
+
+  @override
+  Future<bool> validateSession(String sessionId) async {
+    return true; 
+  }
+
+  @override
+  Future<void> logout(String sessionId) async {
+    // No-op for local simple auth
   }
 }

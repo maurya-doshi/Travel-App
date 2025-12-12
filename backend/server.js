@@ -123,14 +123,22 @@ const sendEmail = async (to, code) => {
 
 // 1. Request OTP (Send Real Email)
 app.post('/auth/otp/request', async (req, res) => {
-    const { email } = req.body;
+    const { email, isLogin } = req.body;
     if (!email) return res.status(400).json({ error: 'Email required' });
 
-    // Generate 6-digit code
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = Date.now() + 10 * 60 * 1000; // 10 mins
-
     try {
+        // If Login Flow: Check if user exists first
+        if (isLogin) {
+            const user = await getQuery('SELECT * FROM users WHERE email = ?', [email]);
+            if (!user) {
+                return res.status(404).json({ error: 'User not found. Please sign up first.' });
+            }
+        }
+
+        // Generate 6-digit code
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+        const expiresAt = Date.now() + 10 * 60 * 1000; // 10 mins
+
         // Save to DB (Upsert)
         await runQuery(`INSERT OR REPLACE INTO otp_codes (email, code, expiresAt) VALUES (?, ?, ?)`,
             [email, code, expiresAt]);
@@ -146,7 +154,7 @@ app.post('/auth/otp/request', async (req, res) => {
 
 // 2. Verify OTP
 app.post('/auth/otp/verify', async (req, res) => {
-    const { email, code } = req.body;
+    const { email, code, displayName, password } = req.body;
     try {
         const record = await getQuery('SELECT * FROM otp_codes WHERE email = ?', [email]);
 
@@ -156,17 +164,23 @@ app.post('/auth/otp/verify', async (req, res) => {
 
         // Valid! Create/Update User
         const uid = 'user_' + email.split('@')[0]; // Simple UID derivation
-        const displayName = email.split('@')[0];   // Default Name
 
+        // Check if user exists to preserve existing data
+        const existingUser = await getQuery('SELECT * FROM users WHERE email = ?', [email]);
+
+        let explorerPoints = 0;
+        if (existingUser) explorerPoints = existingUser.explorerPoints;
+
+        // Upsert User with Password
         await runQuery(`
-            INSERT OR REPLACE INTO users (uid, email, displayName, explorerPoints)
-            VALUES (?, ?, ?, COALESCE((SELECT explorerPoints FROM users WHERE uid=?), 0))
-        `, [uid, email, displayName, uid]);
+            INSERT OR REPLACE INTO users (uid, email, displayName, explorerPoints, password)
+            VALUES (?, ?, ?, ?, ?)
+        `, [uid, email, displayName || (existingUser ? existingUser.displayName : email.split('@')[0]), explorerPoints, password || (existingUser ? existingUser.password : null)]);
 
         // Clean up OTP
         await runQuery('DELETE FROM otp_codes WHERE email = ?', [email]);
 
-        res.json({ uid, email, displayName, token: 'session_token_' + uid });
+        res.json({ uid, email, displayName: displayName || (existingUser ? existingUser.displayName : email.split('@')[0]), token: 'session_token_' + uid });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -493,6 +507,46 @@ app.post('/auth/logout', async (req, res) => {
     try {
         await runQuery('UPDATE user_sessions SET isActive = 0 WHERE sessionId = ?', [sessionId]);
         res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Login with Password
+app.post('/auth/login', async (req, res) => {
+    const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ error: 'Email and Password required' });
+
+    try {
+        const user = await getQuery('SELECT * FROM users WHERE email = ?', [email]);
+        if (!user) return res.status(404).json({ error: 'User not found' });
+
+        // Simple password check
+        if (user.password !== password) {
+            return res.status(401).json({ error: 'Invalid Credentials' });
+        }
+
+        // Create Session
+        const sessionId = uuidv4();
+        const createdAt = new Date().toISOString();
+        const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(); // 7 days
+
+        await runQuery(
+            'INSERT INTO user_sessions (sessionId, userId, createdAt, expiresAt, isActive) VALUES (?, ?, ?, ?, 1)',
+            [sessionId, user.uid, createdAt, expiresAt]
+        );
+
+        res.json({
+            success: true,
+            session: { sessionId, expiresAt },
+            user: {
+                uid: user.uid,
+                email: user.email,
+                displayName: user.displayName,
+                explorerPoints: user.explorerPoints
+            }
+        });
+
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
