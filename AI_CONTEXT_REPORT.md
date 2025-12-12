@@ -139,7 +139,8 @@ class GroupChat {
 
 **Your Role (Agent):**
 1.  Read the `lib/` folder to understand existing patterns.
-// ... existing content ...
+
+---
 
 ## 🔄 PART 6: RECENT CHANGES (Backend Connection - 2025-12-12)
 
@@ -179,3 +180,37 @@ class GroupChat {
     *   **Map:** `activeVisitorCount` is currently **MOCKED/STATIC** in the database. Dynamic aggregation is postponed.
     *   **Locations:** Shifting focus to **Bangalore** and **Mumbai** for the demo.
     *   **Features:** Prioritizing "Join Event" flow over complex backend validation.
+
+---
+
+## 🎨 PART 7: UI REDESIGN & RESTORATION (2025-12-12 Part 2)
+
+**Summary:** Completed a comprehensive UI overhaul (Glassmorphism, Animations) and restored the full Backend+Firebase integration after the demo.
+
+### 7.1 Premium UI Overhaul
+*   **Design Language:** Glassmorphism (Blur effects), Dark/Purple Gradient Theme, `flutter_animate` for entry effects.
+*   **Key Screens Updated:**
+    *   `SignupScreen`: Animated entry, glass input fields (Dark glass for contrast).
+    *   `MapScreen`: Full-screen map, Floating Search Bar, Gradient FAB.
+    *   `EventsScreen`: Parallax Header, Premium Event Cards.
+    *   `CitySelectionScreen`: Staggered Grid Animations.
+    *   `NavigationBar`: Floating Dock style.
+*   **Fixes:**
+    *   **Map FAB Overlap:** Added bottom margin to avoid collision with Floating Nav Bar.
+    *   **Input Contrast:** Switched to "Dark Glass" fields to make white text visible.
+
+### 7.2 Backend & Auth Restoration
+*   **Firebase Re-enabled:** `firebase_core`, `firebase_auth`, `google_sign_in` are active.
+*   **Auth Repository:** Switched back to `FirebaseAuthRepository` (Real Firebase) from Mock.
+*   **Backend Connection:** `ApiSocialRepository` and `ApiMapRepository` are active and pointing to `localhost:3000`.
+
+### 7.3 Known Issues & Workarounds
+1.  **Windows Build Failure:**
+    *   *Issue:* C++ Linker Error with Firebase SDK on Windows.
+    *   *Workaround:* Develop/Run on **Chrome** (`flutter run -d chrome`) or Android/iOS.
+2.  **Web Google Auth (People API):**
+    *   *Issue:* "People API not enabled" error when signing in.
+    *   *Fix:* Restricted `GoogleSignIn` capability to `scopes: ['email']` in `FirebaseAuthRepository`.
+    *   *Fallback:* If it fails, enable People API in Google Cloud Console.
+3.  **Data Persistence:**
+    *   The app currently points to the local SQLite `backend/travel_app.db`. Ensure `npm start` is running.

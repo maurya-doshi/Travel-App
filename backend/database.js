@@ -86,6 +86,17 @@ db.serialize(() => {
     FOREIGN KEY(userId) REFERENCES users(uid) ON DELETE CASCADE
   )`);
 
+  // 6. Safety Alerts Table (SOS)
+  db.run(`CREATE TABLE IF NOT EXISTS safety_alerts (
+    id TEXT PRIMARY KEY,
+    userId TEXT NOT NULL,
+    latitude REAL NOT NULL,
+    longitude REAL NOT NULL,
+    type TEXT NOT NULL, /* 'emergency' or 'uncomfortable' */
+    timestamp TEXT NOT NULL,
+    status TEXT DEFAULT 'active'
+  )`);
+
   console.log('Database tables initialized.');
 });
 

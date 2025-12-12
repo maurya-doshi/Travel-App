@@ -215,6 +215,22 @@ app.post('/chats/:chatId/messages', async (req, res) => {
     }
 });
 
+// --- SAFETY ---
+
+// Create Safety Alert
+app.post('/safety/alert', async (req, res) => {
+    const { userId, latitude, longitude, type } = req.body;
+    const id = uuidv4();
+    const timestamp = new Date().toISOString();
+    try {
+        await runQuery('INSERT INTO safety_alerts (id, userId, latitude, longitude, type, timestamp) VALUES (?, ?, ?, ?, ?, ?)',
+            [id, userId, latitude, longitude, type, timestamp]);
+        res.json({ id, status: 'alert_sent' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });

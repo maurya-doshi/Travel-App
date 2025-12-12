@@ -112,7 +112,20 @@ class ApiSocialRepository implements SocialRepository {
   // I will check if I need to extend the abstract class.
   // The plan said "Integrate API calls ... joinEvent".
   // I likely need to adding joinEvent to SocialRepository interface.
+  @override
   Future<void> joinEvent(String eventId, String userId) async {
      await _apiService.post('/events/$eventId/join', {'userId': userId});
+  }
+
+  @override
+  Future<void> createEvent(TravelEvent event) async {
+    await _apiService.post('/events', {
+      'city': event.city,
+      'title': event.title,
+      'eventDate': event.eventDate.toIso8601String(),
+      'isDateFlexible': event.isDateFlexible,
+      'creatorId': event.creatorId,
+      'requiresApproval': event.requiresApproval,
+    });
   }
 }
