@@ -19,8 +19,15 @@ db.serialize(() => {
     email TEXT,
     displayName TEXT,
     explorerPoints INTEGER DEFAULT 0,
-    password TEXT
+    password TEXT,
+    phoneNumber TEXT,
+    emergencyContact TEXT
   )`);
+
+  // Migration: Add columns if they don't exist (Ignore error if they do)
+  db.run(`ALTER TABLE users ADD COLUMN phoneNumber TEXT`, () => { });
+  db.run(`ALTER TABLE users ADD COLUMN emergencyContact TEXT`, () => { });
+
 
   // 2. Destination Pins Table
   db.run(`CREATE TABLE IF NOT EXISTS destination_pins (

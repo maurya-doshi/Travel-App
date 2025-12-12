@@ -200,13 +200,42 @@ app.get('/users/:uid', async (req, res) => {
 
 // Create/Update User (Managed by OTP flow usually, but keeping for direct profile updates)
 app.post('/users', async (req, res) => {
-    const { uid, email, displayName, explorerPoints } = req.body;
+    const { uid, email, displayName, explorerPoints, phoneNumber, emergencyContact } = req.body;
     try {
         await runQuery(`
-      INSERT OR REPLACE INTO users (uid, email, displayName, explorerPoints)
-      VALUES (?, ?, ?, ?)
-    `, [uid, email, displayName, explorerPoints || 0]);
-        res.json({ uid, email, displayName, explorerPoints: explorerPoints || 0 });
+      INSERT OR REPLACE INTO users (uid, email, displayName, explorerPoints, phoneNumber, emergencyContact)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `, [uid, email, displayName, explorerPoints || 0, phoneNumber, emergencyContact]);
+        res.json({ uid, email, displayName, explorerPoints: explorerPoints || 0, phoneNumber, emergencyContact });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Update User Profile
+app.put('/users/:uid', async (req, res) => {
+    const uid = req.params.uid;
+    const { displayName, phoneNumber, email, emergencyContact, password } = req.body;
+
+    try {
+        // Build dynamic update query
+        let fields = [];
+        let params = [];
+
+        if (displayName !== undefined) { fields.push('displayName = ?'); params.push(displayName); }
+        if (phoneNumber !== undefined) { fields.push('phoneNumber = ?'); params.push(phoneNumber); }
+        if (email !== undefined) { fields.push('email = ?'); params.push(email); }
+        if (emergencyContact !== undefined) { fields.push('emergencyContact = ?'); params.push(emergencyContact); }
+        if (password !== undefined) { fields.push('password = ?'); params.push(password); }
+
+        if (fields.length === 0) return res.json({ message: 'No changes provided' });
+
+        params.push(uid);
+        await runQuery(`UPDATE users SET ${fields.join(', ')} WHERE uid = ?`, params);
+
+        // Return updated user
+        const user = await getQuery('SELECT * FROM users WHERE uid = ?', [uid]);
+        res.json(user);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

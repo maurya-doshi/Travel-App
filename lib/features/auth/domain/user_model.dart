@@ -4,6 +4,8 @@ class UserModel {
   final String displayName;
   final String? photoUrl;
   final int explorerPoints;
+  final String? phoneNumber;
+  final String? emergencyContact;
 
   const UserModel({
     required this.uid,
@@ -11,6 +13,8 @@ class UserModel {
     required this.displayName,
     this.photoUrl,
     this.explorerPoints = 0,
+    this.phoneNumber,
+    this.emergencyContact,
   });
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
@@ -20,6 +24,8 @@ class UserModel {
       displayName: map['displayName'] as String,
       photoUrl: map['photoUrl'] as String?,
       explorerPoints: map['explorerPoints'] as int? ?? 0,
+      phoneNumber: map['phoneNumber'] as String?,
+      emergencyContact: map['emergencyContact'] as String?,
     );
   }
 
@@ -32,6 +38,28 @@ class UserModel {
       'displayName': displayName,
       'photoUrl': photoUrl,
       'explorerPoints': explorerPoints,
+      'phoneNumber': phoneNumber,
+      'emergencyContact': emergencyContact,
     };
+  }
+
+  UserModel copyWith({
+    String? uid,
+    String? email,
+    String? displayName,
+    String? photoUrl,
+    int? explorerPoints,
+    String? phoneNumber,
+    String? emergencyContact,
+  }) {
+    return UserModel(
+      uid: uid ?? this.uid,
+      email: email ?? this.email,
+      displayName: displayName ?? this.displayName,
+      photoUrl: photoUrl ?? this.photoUrl,
+      explorerPoints: explorerPoints ?? this.explorerPoints,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      emergencyContact: emergencyContact ?? this.emergencyContact,
+    );
   }
 }

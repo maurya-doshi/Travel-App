@@ -13,6 +13,10 @@ import 'package:travel_hackathon/features/auth/presentation/auth_providers.dart'
 import 'package:travel_hackathon/features/map/presentation/map_screen.dart'; 
 import 'package:travel_hackathon/features/social/presentation/events_screen.dart'; 
 import 'package:travel_hackathon/features/social/presentation/chat_screen.dart'; 
+import 'package:travel_hackathon/features/auth/presentation/trip_history_screen.dart';
+import 'package:travel_hackathon/features/auth/presentation/edit_profile_screen.dart';
+import 'package:travel_hackathon/features/auth/presentation/favorites_screen.dart';
+import 'package:travel_hackathon/features/auth/presentation/offline_maps_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _sectionNavigatorKey = GlobalKey<NavigatorState>(); 
@@ -95,6 +99,24 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/profile',
                 builder: (context, state) => const ProfileScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'trips',
+                    builder: (context, state) => const TripHistoryScreen(),
+                  ),
+                  GoRoute(
+                    path: 'edit',
+                    builder: (context, state) => const EditProfileScreen(),
+                  ),
+                  GoRoute(
+                    path: 'favorites',
+                    builder: (context, state) => const FavoritesScreen(),
+                  ),
+                  GoRoute(
+                    path: 'offline-maps',
+                    builder: (context, state) => const OfflineMapsScreen(),
+                  ),
+                ],
               ),
             ],
           ),

@@ -36,6 +36,19 @@ class ApiService {
     }
   }
 
+  Future<dynamic> put(String endpoint, Map<String, dynamic> body) async {
+    try {
+      final response = await http.put(
+        Uri.parse('$_baseUrl$endpoint'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      );
+      return _handleResponse(response);
+    } catch (e) {
+      throw Exception('Failed to connect to backend: $e');
+    }
+  }
+
 
   Future<dynamic> delete(String endpoint, {Map<String, String>? headers}) async {
     try {
