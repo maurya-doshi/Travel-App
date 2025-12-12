@@ -88,31 +88,36 @@ class _MapScreenState extends ConsumerState<MapScreen> with TickerProviderStateM
             top: MediaQuery.of(context).padding.top + 16,
             left: 16,
             right: 16,
-            child: Container(
-              height: 60,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(30),
-                boxShadow: [
-                  BoxShadow(
-                    color: PremiumTheme.primary.withOpacity(0.15),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.search, color: Colors.grey),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'Search destinations...',
-                      style: GoogleFonts.dmSans(color: Colors.grey[600], fontSize: 16),
+            child: GestureDetector(
+              onTap: () {
+                // Navigate to City Selection (Search features there)
+                context.go('/city-selection');
+              },
+              child: Container(
+                height: 60,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: [
+                    BoxShadow(
+                      color: PremiumTheme.primary.withOpacity(0.15),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
                     ),
-                  ),
-                   Container(
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.search, color: Colors.grey),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Search destinations...',
+                        style: GoogleFonts.dmSans(color: Colors.grey[600], fontSize: 16),
+                      ),
+                    ),
+                    Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         gradient: PremiumTheme.primaryGradient,
@@ -122,8 +127,9 @@ class _MapScreenState extends ConsumerState<MapScreen> with TickerProviderStateM
                         ],
                       ),
                       child: const Icon(Icons.tune, color: Colors.white, size: 16),
-                   ),
-                ],
+                    ),
+                  ],
+                ),
               ),
             ).animate().slideY(begin: -1, duration: 600.ms, curve: Curves.easeOutBack),
           ),
