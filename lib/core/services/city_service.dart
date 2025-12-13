@@ -42,4 +42,26 @@ class CityService {
       return [];
     }
   }
+  Future<List<double>?> getCityCoordinates(String cityName) async {
+    // Basic caching for coordinates could be added here
+    try {
+      final response = await http.get(
+        Uri.parse('https://nominatim.openstreetmap.org/search?q=$cityName,India&format=json&limit=1'),
+        headers: {'User-Agent': 'TravelHackathonApp/1.0'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data is List && data.isNotEmpty) {
+          final lat = double.parse(data[0]['lat']);
+          final lon = double.parse(data[0]['lon']);
+          return [lat, lon];
+        }
+      }
+      return null;
+    } catch (e) {
+      print('Geocoding Error: $e');
+      return null;
+    }
+  }
 }

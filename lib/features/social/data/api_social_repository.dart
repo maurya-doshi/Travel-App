@@ -4,6 +4,8 @@ import 'package:travel_hackathon/features/auth/domain/user_model.dart';
 import 'package:travel_hackathon/features/social/data/social_repository.dart';
 import 'package:travel_hackathon/features/social/domain/chat_model.dart';
 import 'package:travel_hackathon/features/social/domain/travel_event_model.dart';
+import 'package:travel_hackathon/features/social/domain/direct_chat_model.dart';
+import 'package:travel_hackathon/features/social/domain/quest_model.dart';
 
 class ApiSocialRepository implements SocialRepository {
   final ApiService _apiService;
@@ -24,7 +26,7 @@ class ApiSocialRepository implements SocialRepository {
 
     // Filter
     return events.where((e) {
-      if (e.city != city) return false;
+      if (city != 'All' && e.city != city) return false;
       if (flexibleOnly == true && !e.isDateFlexible) return false;
       // Date filter logic (simple day match)
       if (date != null) {
@@ -126,6 +128,7 @@ class ApiSocialRepository implements SocialRepository {
       'isDateFlexible': event.isDateFlexible,
       'creatorId': event.creatorId,
       'requiresApproval': event.requiresApproval,
+      'category': event.category,
     });
   }
   @override
@@ -147,5 +150,108 @@ class ApiSocialRepository implements SocialRepository {
   @override
   Future<void> deleteEvent(String eventId, String userId) async {
     await _apiService.delete('/events/$eventId', headers: {'x-user-id': userId});
+  }
+
+  // --- DM Implementation ---
+
+  @override
+  Future<DirectChat> createDirectChat(String user1Id, String user2Id) async {
+    final response = await _apiService.post('/chats/direct', {
+      'user1Id': user1Id,
+      'user2Id': user2Id,
+    });
+    return DirectChat.fromJson(response);
+  }
+
+  @override
+  Future<List<DirectChat>> getDirectChats(String userId) async {
+    final response = await _apiService.get('/chats/direct/user/$userId');
+    return (response as List).map((e) => DirectChat.fromJson(e)).toList();
+  }
+
+  @override
+  Future<List<DirectMessage>> getDirectMessages(String chatId) async {
+    final response = await _apiService.get('/chats/direct/$chatId/messages');
+    return (response as List).map((e) => DirectMessage.fromJson(e)).toList();
+  }
+
+  @override
+  Future<void> sendDirectMessage(String chatId, String senderId, String text) async {
+    await _apiService.post('/chats/direct/$chatId/messages', {
+      'senderId': senderId,
+      'text': text,
+    });
+  }
+  // --- Quests ---
+
+  @override
+  Future<List<Quest>> getQuests() async {
+    final response = await _apiService.get('/quests');
+    return (response as List).map((e) => Quest.fromJson(e)).toList();
+  }
+
+  @override
+  Future<Quest?> getQuestForCity(String city) async {
+    try {
+      final response = await _apiService.get('/quests/city/$city');
+      return Quest.fromJson(response);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  @override
+  Future<void> submitQuestStep(String userId, String questId, String stepId) async {
+    await _apiService.post('/quests/progress', {
+      'userId': userId,
+      'questId': questId,
+      'stepId': stepId,
+    });
+  }
+
+  @override
+  Future<List<String>> getCompletedSteps(String userId) async {
+    final response = await _apiService.get('/quests/progress/$userId');
+    return (response as List).map((e) => e['stepId'] as String).toList();
+  }
+
+  // --- Quest Progress ---
+
+  @override
+  Future<void> joinQuest(String userId, String questId) async {
+    await _apiService.post('/quests/join', {
+      'userId': userId,
+      'questId': questId,
+    });
+  }
+
+  @override
+  Future<void> quitQuest(String userId, String questId) async {
+    await _apiService.post('/quests/quit', {
+      'userId': userId,
+      'questId': questId,
+    });
+  }
+
+  @override
+  Future<List<Quest>> getActiveQuests(String userId) async {
+    final response = await _apiService.get('/quests/active/$userId');
+    return (response as List).map((e) => Quest.fromJson(e)).toList();
+  }
+
+  @override
+  Future<Map<String, dynamic>> completeStep(String userId, String questId, String stepId) async {
+    final response = await _apiService.post('/quests/step/complete', {
+      'userId': userId,
+      'questId': questId,
+      'stepId': stepId,
+    });
+    return response as Map<String, dynamic>;
+  }
+
+  @override
+  Future<Map<String, dynamic>> getQuestProgress(String userId, String questId) async {
+    final response = await _apiService.get('/quests/progress/$userId/$questId');
+    return response as Map<String, dynamic>;
   }
 }

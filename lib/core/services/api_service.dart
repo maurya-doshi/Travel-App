@@ -5,13 +5,12 @@ import 'package:flutter/foundation.dart';
 
 class ApiService {
   static String get _baseUrl {
-    if (kIsWeb) return 'http://localhost:3000';
+    if (kIsWeb) return 'http://127.0.0.1:3000';
     try {
       if (Platform.isAndroid) return 'http://10.0.2.2:3000';
     } catch (e) {
-      // Platform.isAndroid throws on web, but we handle kIsWeb above.
     }
-    return 'http://localhost:3000'; // Windows, iOS, macOS
+    return 'http://127.0.0.1:3000';
   }
 
   Future<dynamic> get(String endpoint) async {
@@ -24,14 +23,18 @@ class ApiService {
   }
 
   Future<dynamic> post(String endpoint, Map<String, dynamic> body) async {
+    debugPrint('API POST: $_baseUrl$endpoint');
+    debugPrint('API POST body: $body');
     try {
       final response = await http.post(
         Uri.parse('$_baseUrl$endpoint'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(body),
       );
+      debugPrint('API POST response: ${response.statusCode} - ${response.body}');
       return _handleResponse(response);
     } catch (e) {
+      debugPrint('API POST error: $e');
       throw Exception('Failed to connect to backend: $e');
     }
   }

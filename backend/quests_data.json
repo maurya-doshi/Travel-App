@@ -1,0 +1,542 @@
+[
+    {
+        "city": "Mumbai",
+        "title": "The City of Dreams",
+        "description": "Navigate the bustling streets of Mumbai, from colonial architecture to iconic street food, discovering the resilience and glamour of India's financial capital.",
+        "reward": "500 XP",
+        "steps": [
+            {
+                "id": 1,
+                "title": "Gateway of India",
+                "description": "An arch-monument built in the 20th century to commemorate the landing of King-Emperor George V and Queen-Empress Mary.",
+                "latitude": 18.9220,
+                "longitude": 72.8347,
+                "type": "history",
+                "clue": "I stand guard at the water's edge, the first thing visitors saw when arriving by steamship.",
+                "mustTry": "Take a photo with the pigeons and the Taj Hotel in the background."
+            },
+            {
+                "id": 2,
+                "title": "Leopold Cafe",
+                "description": "A popular restaurant and bar founded in 1871, famous for its history and literary mentions.",
+                "latitude": 18.9234,
+                "longitude": 72.8331,
+                "type": "food",
+                "clue": "Bullet holes from a dark day remain on my walls, but my spirit and beer towers stand tall.",
+                "mustTry": "Order the Roast Chicken and a Cold Coffee."
+            },
+            {
+                "id": 3,
+                "title": "Chhatrapati Shivaji Maharaj Terminus",
+                "description": "A historic railway station and UNESCO World Heritage Site exhibiting Victorian Gothic Revival architecture.",
+                "latitude": 18.9398,
+                "longitude": 72.8354,
+                "type": "history",
+                "clue": "I am a palace for trains, where gargoyles watch over millions of commuters every day.",
+                "mustTry": "Admire the starry ceiling inside the ticket hall."
+            },
+            {
+                "id": 4,
+                "title": "Marine Drive",
+                "description": "A 3.6-kilometre-long boulevard famously known as the Queen's Necklace.",
+                "latitude": 18.9438,
+                "longitude": 72.8232,
+                "type": "nature",
+                "clue": "I curve along the sea, glowing like a string of pearls at night.",
+                "mustTry": "Sit on the promenade and watch the sunset."
+            },
+            {
+                "id": 5,
+                "title": "Kyani & Co.",
+                "description": "One of the oldest operating Parsi cafes in Mumbai, known for its old-world charm.",
+                "latitude": 18.9476,
+                "longitude": 72.8295,
+                "type": "food",
+                "clue": "Chequered tablecloths, bentwood chairs, and the smell of freshly baked bun maska define me.",
+                "mustTry": "Bun Maska and Irani Chai."
+            },
+            {
+                "id": 6,
+                "title": "Mani Bhavan",
+                "description": "A museum and historical building dedicated to Gandhi, who stayed here during his visits to Mumbai.",
+                "latitude": 18.9593,
+                "longitude": 72.8113,
+                "type": "history",
+                "clue": "Find the quiet house where the Mahatma planned freedom movements and learned to use the charkha.",
+                "mustTry": "View the doll dioramas depicting Gandhi's life."
+            },
+            {
+                "id": 7,
+                "title": "Haji Ali Dargah",
+                "description": "A mosque and tomb located on an islet off the coast of Worli.",
+                "latitude": 18.9827,
+                "longitude": 72.8089,
+                "type": "culture",
+                "clue": "I float on the sea, accessible only by a narrow path that disappears during high tide.",
+                "mustTry": "Listen to the Qawwali singers if present."
+            },
+            {
+                "id": 8,
+                "title": "Dhobi Ghat",
+                "description": "The world's largest open-air laundry, showcasing a unique aspect of Mumbai's daily life.",
+                "latitude": 18.9901,
+                "longitude": 72.8258,
+                "type": "culture",
+                "clue": "Thousands of clothes are flogged on stones here, creating a colorful mosaic visible from the bridge.",
+                "mustTry": "Watch the organized chaos from the viewing platform."
+            },
+            {
+                "id": 9,
+                "title": "Siddhivinayak Temple",
+                "description": "A Hindu temple dedicated to Lord Shri Ganesh, frequented by Bollywood stars and politicians.",
+                "latitude": 19.0169,
+                "longitude": 72.8304,
+                "type": "culture",
+                "clue": "Devotees walk barefoot to see the remover of obstacles who grants wishes here.",
+                "mustTry": "Buy the Modak prasad."
+            },
+            {
+                "id": 10,
+                "title": "Bandstand Promenade",
+                "description": "A popular seafront walkway in Bandra, often associated with Bollywood stardom.",
+                "latitude": 19.0456,
+                "longitude": 72.8193,
+                "type": "nature",
+                "clue": "Walk past the 'Land's End' where the King of Bollywood waves to his fans.",
+                "mustTry": "Eat roasted corn (bhutta) by the sea."
+            }
+        ]
+    },
+    {
+        "city": "Delhi",
+        "title": "Echoes of Empires",
+        "description": "Traverse the layers of history in India's capital, from Mughal grandeur to colonial power and spicy street treats.",
+        "reward": "600 XP",
+        "steps": [
+            {
+                "id": 1,
+                "title": "India Gate",
+                "description": "A war memorial dedicated to 70,000 soldiers of the British Indian Army.",
+                "latitude": 28.6129,
+                "longitude": 77.2295,
+                "type": "history",
+                "clue": "An eternal flame burns beneath my arch at the end of the Rajpath.",
+                "mustTry": "Enjoy an ice cream bar while walking the lawns."
+            },
+            {
+                "id": 2,
+                "title": "Jama Masjid",
+                "description": "One of the largest mosques in India, built by Mughal Emperor Shah Jahan.",
+                "latitude": 28.6506,
+                "longitude": 77.2334,
+                "type": "culture",
+                "clue": "Climb my southern minaret to see the Red Fort and the chaotic veins of Old Delhi.",
+                "mustTry": "Climb the minaret for a bird's eye view."
+            },
+            {
+                "id": 3,
+                "title": "Karim's",
+                "description": "A historic restaurant near Jama Masjid serving Mughal cuisine since 1913.",
+                "latitude": 28.6499,
+                "longitude": 77.2337,
+                "type": "food",
+                "clue": "Hidden in a narrow alley near the great mosque, the aroma of seekh kebabs will guide you.",
+                "mustTry": "Mutton Korma and Khamiri Roti."
+            },
+            {
+                "id": 4,
+                "title": "Humayun's Tomb",
+                "description": "The tomb of the Mughal Emperor Humayun, the first garden-tomb on the Indian subcontinent.",
+                "latitude": 28.5933,
+                "longitude": 77.2507,
+                "type": "history",
+                "clue": "I was the inspiration for the Taj Mahal, a red sandstone beauty in a Charbagh garden.",
+                "mustTry": "Walk through the water channels at sunset."
+            },
+            {
+                "id": 5,
+                "title": "Lodhi Gardens",
+                "description": "A city park spread over 90 acres, containing tombs of Mohammed Shah and Sikandar Lodi.",
+                "latitude": 28.5930,
+                "longitude": 77.2219,
+                "type": "nature",
+                "clue": "Joggers run past centuries-old domes in this green lung of the city.",
+                "mustTry": "Picnic near the Bada Gumbad."
+            },
+            {
+                "id": 6,
+                "title": "Gurudwara Bangla Sahib",
+                "description": "One of the most prominent Sikh gurdwaras, known for its association with the eighth Sikh Guru.",
+                "latitude": 28.6264,
+                "longitude": 77.2090,
+                "type": "culture",
+                "clue": "Look for the golden dome and the holy Sarovar water that heals.",
+                "mustTry": "Volunteer in the Langar (community kitchen) or eat the meal."
+            },
+            {
+                "id": 7,
+                "title": "Chandni Chowk",
+                "description": "One of the oldest and busiest markets in Old Delhi.",
+                "latitude": 28.6505,
+                "longitude": 77.2303,
+                "type": "culture",
+                "clue": "A maze of silver, spices, and sarees where rickshaws battle for space.",
+                "mustTry": "Eat Parathas at Paranthe Wali Gali."
+            },
+            {
+                "id": 8,
+                "title": "Qutub Minar",
+                "description": "A 73-metre tall tapering tower of five storeys, a UNESCO World Heritage Site.",
+                "latitude": 28.5245,
+                "longitude": 77.1855,
+                "type": "history",
+                "clue": "I am the tallest brick minaret in the world, surrounded by iron that never rusts.",
+                "mustTry": "Read the intricate calligraphy carved on the stone."
+            },
+            {
+                "id": 9,
+                "title": "Dilli Haat",
+                "description": "An open-air food plaza and craft bazaar.",
+                "latitude": 28.5732,
+                "longitude": 77.2092,
+                "type": "culture",
+                "clue": "A village market in the heart of the city where every state of India sells its art.",
+                "mustTry": "Try Momos from the Sikkim stall."
+            },
+            {
+                "id": 10,
+                "title": "Lotus Temple",
+                "description": "A Baháʼí House of Worship notable for its flower-like shape.",
+                "latitude": 28.5535,
+                "longitude": 77.2588,
+                "type": "culture",
+                "clue": "I am a white flower made of marble that welcomes all religions in silence.",
+                "mustTry": "Spend 10 minutes in absolute silence inside the hall."
+            }
+        ]
+    },
+    {
+        "city": "Bangalore",
+        "title": "Gardens & Bytes",
+        "description": "Explore the Garden City's transformation from a pensioner's paradise to the Silicon Valley of India.",
+        "reward": "500 XP",
+        "steps": [
+            {
+                "id": 1,
+                "title": "Cubbon Park",
+                "description": "A landmark 'lung' area of the Bengaluru city.",
+                "latitude": 12.9763,
+                "longitude": 77.5929,
+                "type": "nature",
+                "clue": "A green expanse in the city center where red colonial buildings hide among the bamboo.",
+                "mustTry": "Take a photo of the State Central Library."
+            },
+            {
+                "id": 2,
+                "title": "Vidhana Soudha",
+                "description": "The seat of the state legislature of Karnataka, built in a Neo-Dravidian style.",
+                "latitude": 12.9796,
+                "longitude": 77.5907,
+                "type": "history",
+                "clue": "I am the grand legislative seat with the slogan 'Government's Work is God's Work' inscribed on me.",
+                "mustTry": "View the building illuminated at night (Sundays/Holidays)."
+            },
+            {
+                "id": 3,
+                "title": "MTR (Mavalli Tiffin Room)",
+                "description": "A legendary restaurant near Lalbagh, famous for inventing the Rava Idli.",
+                "latitude": 12.9510,
+                "longitude": 77.5855,
+                "type": "food",
+                "clue": "We invented a new type of idli during World War II rice shortages. Find the original branch.",
+                "mustTry": "Rava Idli and Filter Coffee."
+            },
+            {
+                "id": 4,
+                "title": "Lalbagh Botanical Garden",
+                "description": "An old botanical garden commissioned by Hyder Ali in 1760.",
+                "latitude": 12.9507,
+                "longitude": 77.5848,
+                "type": "nature",
+                "clue": "Look for the giant glass house inspired by London's Crystal Palace.",
+                "mustTry": "Climb the peninsular gniess rock for a view."
+            },
+            {
+                "id": 5,
+                "title": "Bangalore Palace",
+                "description": "A palace built by the Wadiyars in Tudor Revival style.",
+                "latitude": 13.0006,
+                "longitude": 77.5857,
+                "type": "history",
+                "clue": "I look like a castle from England, complete with turrets and ivy, but I reside in India.",
+                "mustTry": "Use the audio guide to learn about the royal family."
+            },
+            {
+                "id": 6,
+                "title": "Tipu Sultan's Summer Palace",
+                "description": "An example of Indo-Islamic architecture and was the summer residence of the Mysorean ruler Tipu Sultan.",
+                "latitude": 12.9594,
+                "longitude": 77.5737,
+                "type": "history",
+                "clue": "A wooden structure entirely made of teak, known as the 'Abode of Happiness'.",
+                "mustTry": "Observe the floral frescoes on the walls."
+            },
+            {
+                "id": 7,
+                "title": "Corner House Ice Cream",
+                "description": "An iconic ice cream parlor chain started in the 80s.",
+                "latitude": 12.9722,
+                "longitude": 77.6006,
+                "type": "food",
+                "clue": "The city's sweet tooth craves my 'Death by Chocolate'.",
+                "mustTry": "Order the DBC (Death by Chocolate)."
+            },
+            {
+                "id": 8,
+                "title": "Bull Temple",
+                "description": "A temple in Basavanagudi known for its large statue of the sacred bull, Nandi.",
+                "latitude": 12.9431,
+                "longitude": 77.5684,
+                "type": "culture",
+                "clue": "A massive granite bull resides here, carved from a single rock.",
+                "mustTry": "Attend the groundnut fair (Kadalekai Parishe) if in season."
+            },
+            {
+                "id": 9,
+                "title": "Commercial Street",
+                "description": "A street famous for trade in clothes, footwear, jewelry, and electronics.",
+                "latitude": 12.9822,
+                "longitude": 77.6083,
+                "type": "culture",
+                "clue": "The ultimate test of your bargaining skills in a narrow, crowded shopping lane.",
+                "mustTry": "Shop for inexpensive trinkets and clothes."
+            },
+            {
+                "id": 10,
+                "title": "ISKCON Temple",
+                "description": "One of the largest ISKCON temples in the world.",
+                "latitude": 13.0097,
+                "longitude": 77.5511,
+                "type": "culture",
+                "clue": "A hill-top temple complex blending modern glass and traditional gopurams.",
+                "mustTry": "Taste the Khichdi prasadam."
+            }
+        ]
+    },
+    {
+        "city": "Jaipur",
+        "title": "The Pink City Royal Trail",
+        "description": "Immerse yourself in the grandeur of Rajput royalty, vibrant bazaars, and architectural marvels.",
+        "reward": "550 XP",
+        "steps": [
+            {
+                "id": 1,
+                "title": "Hawa Mahal",
+                "description": "The 'Palace of Winds' constructed of red and pink sandstone.",
+                "latitude": 26.9239,
+                "longitude": 75.8267,
+                "type": "history",
+                "clue": "I have 953 small windows (Jharokhas) so royal ladies could watch the street festivals unseen.",
+                "mustTry": "Take a photo from the cafe across the street."
+            },
+            {
+                "id": 2,
+                "title": "Amber Fort",
+                "description": "A majestic fort located high on a hill, known for its artistic style elements.",
+                "latitude": 26.9855,
+                "longitude": 75.8513,
+                "type": "history",
+                "clue": "Ride an elephant or a jeep to reach my gates; look for the Sheesh Mahal (Mirror Palace) inside.",
+                "mustTry": "See the light and sound show in the evening."
+            },
+            {
+                "id": 3,
+                "title": "Jantar Mantar",
+                "description": "A collection of nineteen architectural astronomical instruments.",
+                "latitude": 26.9247,
+                "longitude": 75.8245,
+                "type": "history",
+                "clue": "I am a playground of stone instruments used to read the stars and tell time to the second.",
+                "mustTry": "Locate the world's largest stone sundial."
+            },
+            {
+                "id": 4,
+                "title": "City Palace",
+                "description": "A palace complex that includes the Chandra Mahal and Mubarak Mahal.",
+                "latitude": 26.9258,
+                "longitude": 75.8237,
+                "type": "culture",
+                "clue": "The royal family still lives in part of me. Look for the four seasons gates.",
+                "mustTry": "See the two giant silver urns (Gangajalis)."
+            },
+            {
+                "id": 5,
+                "title": "Lassiwala",
+                "description": "A famous eatery on MI Road known for its creamy Lassi.",
+                "latitude": 26.9157,
+                "longitude": 75.8117,
+                "type": "food",
+                "clue": "They serve a thick, sweet drink in clay cups (kulhads) since 1944. Go early before they run out.",
+                "mustTry": "Large Sweet Lassi with extra malai."
+            },
+            {
+                "id": 6,
+                "title": "Nahargarh Fort",
+                "description": "Stand on the edge of the Aravalli hills for the best view of the city.",
+                "latitude": 26.9370,
+                "longitude": 75.8155,
+                "type": "nature",
+                "clue": "I am the Tiger Fort that watches over the Pink City from a high ridge.",
+                "mustTry": "Watch the sunset over Jaipur city."
+            },
+            {
+                "id": 7,
+                "title": "Johari Bazaar",
+                "description": "The jeweler's market of Jaipur.",
+                "latitude": 26.9196,
+                "longitude": 75.8276,
+                "type": "culture",
+                "clue": "If you seek gemstones, Kundan jewelry, or the perfect saree, walk this pink street.",
+                "mustTry": "Buy a traditional Bandhani dupatta."
+            },
+            {
+                "id": 8,
+                "title": "Rawat Misthan Bhandar",
+                "description": "A popular sweet shop famous for its Pyaaz Ki Kachori.",
+                "latitude": 26.9216,
+                "longitude": 75.7937,
+                "type": "food",
+                "clue": "Famous for a spicy, deep-fried onion pastry that people line up for.",
+                "mustTry": "Pyaaz Ki Kachori."
+            },
+            {
+                "id": 9,
+                "title": "Albert Hall Museum",
+                "description": "The oldest museum of the state, functioning as the state museum of Rajasthan.",
+                "latitude": 26.9116,
+                "longitude": 75.8195,
+                "type": "culture",
+                "clue": "Hundreds of pigeons fly around this Indo-Saracenic building housing an Egyptian mummy.",
+                "mustTry": "Feed the pigeons outside."
+            },
+            {
+                "id": 10,
+                "title": "Jal Mahal",
+                "description": "A palace in the middle of the Man Sagar Lake.",
+                "latitude": 26.9656,
+                "longitude": 75.8427,
+                "type": "nature",
+                "clue": "I float in the lake, and four of my five floors are underwater.",
+                "mustTry": "Take a walk on the promenade facing the lake."
+            }
+        ]
+    },
+    {
+        "city": "Goa",
+        "title": "Susegad & Heritage",
+        "description": "Discover the relaxed Goan way of life through Portuguese heritage, pristine nature, and coastal cuisine.",
+        "reward": "700 XP",
+        "steps": [
+            {
+                "id": 1,
+                "title": "Basilica of Bom Jesus",
+                "description": "A UNESCO World Heritage Site containing the remains of St. Francis Xavier.",
+                "latitude": 15.5009,
+                "longitude": 73.9116,
+                "type": "history",
+                "clue": "An un-plastered laterite church in Old Goa that holds the body of a Saint.",
+                "mustTry": "Observe the Baroque architecture of the main altar."
+            },
+            {
+                "id": 2,
+                "title": "Fontainhas",
+                "description": "The old Latin Quarter in Panjim.",
+                "latitude": 15.4947,
+                "longitude": 73.8306,
+                "type": "culture",
+                "clue": "Walk through narrow streets lined with brightly colored Portuguese houses in yellow, blue, and green.",
+                "mustTry": "Take photos by the colorful walls."
+            },
+            {
+                "id": 3,
+                "title": "Fort Aguada",
+                "description": "A well-preserved seventeenth-century Portuguese fort standing on Sinquerim Beach.",
+                "latitude": 15.4918,
+                "longitude": 73.7737,
+                "type": "history",
+                "clue": "I have a lighthouse and a massive cistern that once supplied water to ships.",
+                "mustTry": "Visit the lighthouse for panoramic ocean views."
+            },
+            {
+                "id": 4,
+                "title": "Anjuna Flea Market",
+                "description": "A famous weekly market started by hippies in the 1960s.",
+                "latitude": 15.5759,
+                "longitude": 73.7445,
+                "type": "culture",
+                "clue": "Open only on Wednesdays, this chaotic market sells everything from spices to trance music.",
+                "mustTry": "Bargain for souvenirs."
+            },
+            {
+                "id": 5,
+                "title": "Viva Panjim",
+                "description": "A restaurant located in a heritage house in Fontainhas.",
+                "latitude": 15.4960,
+                "longitude": 73.8315,
+                "type": "food",
+                "clue": "Dine in an ancestral home to taste authentic Goan curry.",
+                "mustTry": "Pork Vindaloo or Prawn Curry Rice."
+            },
+            {
+                "id": 6,
+                "title": "Chapora Fort",
+                "description": "A fort offering commanding views of the Vagator beach, famous from the movie 'Dil Chahta Hai'.",
+                "latitude": 15.6053,
+                "longitude": 73.7377,
+                "type": "nature",
+                "clue": "Sit on the walls where three friends sat in a famous Bollywood movie, overlooking the Vagator beach.",
+                "mustTry": "Watch the sunset from the fort walls."
+            },
+            {
+                "id": 7,
+                "title": "Fisherman's Wharf",
+                "description": "A restaurant by the river offering a mix of Goan zest and global cuisine.",
+                "latitude": 15.1959,
+                "longitude": 73.9312,
+                "type": "food",
+                "clue": "Eat by the river Sal in the south, enjoying live music and seafood.",
+                "mustTry": "Goan Fish Curry and Bebinca."
+            },
+            {
+                "id": 8,
+                "title": "Se Cathedral",
+                "description": "The cathedral of the Latin Rite Roman Catholic Archdiocese of Goa and Daman.",
+                "latitude": 15.5034,
+                "longitude": 73.9126,
+                "type": "history",
+                "clue": "I am larger than any church in Portugal, home to the 'Golden Bell'.",
+                "mustTry": "Listen for the sound of the bell."
+            },
+            {
+                "id": 9,
+                "title": "Palolem Beach",
+                "description": "A beautiful crescent-shaped beach in South Goa.",
+                "latitude": 15.0098,
+                "longitude": 74.0232,
+                "type": "nature",
+                "clue": "A crescent-shaped paradise in the south with calm waters and silent discos.",
+                "mustTry": "Take a boat ride to see dolphins."
+            },
+            {
+                "id": 10,
+                "title": "Mangeshi Temple",
+                "description": "A major Hindu temple in Ponda dedicated to Lord Shiva.",
+                "latitude": 15.4056,
+                "longitude": 73.9676,
+                "type": "culture",
+                "clue": "Look for the seven-story deepstambha (lamp tower) at this serene temple entrance.",
+                "mustTry": "Witness the lamp tower lit up (festivals)."
+            }
+        ]
+    }
+]

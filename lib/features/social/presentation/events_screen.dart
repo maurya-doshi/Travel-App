@@ -21,6 +21,7 @@ class EventsScreen extends ConsumerStatefulWidget {
 
 class _EventsScreenState extends ConsumerState<EventsScreen> {
   Timer? _timer;
+  String _selectedCategory = 'All';
 
   @override
   void initState() {
@@ -58,24 +59,53 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Exploring',
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                color: PremiumTheme.textSecondary,
-                                fontWeight: FontWeight.normal,
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
+                                ),
+                                margin: const EdgeInsets.only(right: 16),
+                                child: IconButton(
+                                  icon: const Icon(Icons.arrow_back, color: PremiumTheme.primary),
+                                  onPressed: () {
+                                    if (Navigator.canPop(context)) {
+                                      context.pop();
+                                    } else {
+                                      context.go('/map');
+                                    }
+                                  },
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              widget.city,
-                              style: Theme.of(context).textTheme.displayLarge,
-                            ),
-                          ],
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Exploring',
+                                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                        color: PremiumTheme.textSecondary,
+                                        fontWeight: FontWeight.normal,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      widget.city == 'All' ? 'Trending Everywhere' : widget.city,
+                                      style: Theme.of(context).textTheme.displayLarge,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
+                        // Messages Button
                         Container(
+                          margin: const EdgeInsets.only(right: 12),
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
@@ -84,8 +114,24 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                               BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10),
                             ],
                           ),
-                          child: const Icon(Icons.notifications_outlined, color: PremiumTheme.primary),
+                          child: GestureDetector(
+                            onTap: () => context.push('/messages'),
+                            child: const Icon(Icons.chat_bubble_outline, color: PremiumTheme.primary, size: 20),
+                          ),
                         ),
+
+                        if (widget.city != 'All')
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10),
+                              ],
+                            ),
+                            child: const Icon(Icons.notifications_outlined, color: PremiumTheme.primary),
+                          ),
                       ],
                     ),
                     const SizedBox(height: 24),
@@ -109,7 +155,7 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                           const Icon(Icons.search, color: PremiumTheme.textSecondary),
                           const SizedBox(width: 12),
                           Text(
-                            'Find adventures...',
+                            widget.city == 'All' ? 'Search global events...' : 'Find adventures in ${widget.city}...',
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                           const Spacer(),
@@ -124,14 +170,100 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                         ],
                       ),
                     ),
+                    const SizedBox(height: 24),
+                    
+                    // 3. Category Filter
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      child: Row(
+                        children: [
+                          'All', 'Adventure', 'Chill', 'Party', 'Nature', 'Cultural'
+                        ].map((cat) {
+                          final isSelected = _selectedCategory == cat;
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: FilterChip(
+                              label: Text(cat),
+                              selected: isSelected,
+                              onSelected: (_) => setState(() => _selectedCategory = cat),
+                              selectedColor: Colors.black,
+                              checkmarkColor: Colors.white,
+                              backgroundColor: Colors.white,
+                              labelStyle: TextStyle(
+                                color: isSelected ? Colors.white : Colors.grey[700],
+                                fontWeight: FontWeight.bold,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20), 
+                                side: BorderSide(color: Colors.grey[200]!)
+                              ),
+                              elevation: 0,
+                              pressElevation: 0,
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
 
+            // 2.5 Popular Destinations (Global Only)
+            if (widget.city == 'All')
+              SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Text(
+                        'Popular Destinations',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      height: 160,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        physics: const BouncingScrollPhysics(),
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        children: [
+                          _CityCard(city: 'Goa', image: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?q=80&w=1000&auto=format&fit=crop', color: Colors.teal),
+                          _CityCard(city: 'Bangalore', image: 'https://images.unsplash.com/photo-1596176530529-78163a4f7af2?q=80&w=1000&auto=format&fit=crop', color: Colors.indigo),
+                          _CityCard(city: 'Mumbai', image: 'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?q=80&w=1000&auto=format&fit=crop', color: Colors.orange),
+                          _CityCard(city: 'Delhi', image: 'https://images.unsplash.com/photo-1587474260584-136574528615?q=80&w=1000&auto=format&fit=crop', color: Colors.red),
+                          _CityCard(city: 'Manali', image: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?q=80&w=1000&auto=format&fit=crop', color: Colors.blue),
+                        ].map((card) => Padding(padding: const EdgeInsets.only(right: 16), child: card)).toList(),
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Text(
+                        'Trending Events',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              ),
+
             // 3. Events List
             eventsAsync.when(
-              data: (events) {
+              data: (allEvents) {
+                // FILTER
+                final events = _selectedCategory == 'All' 
+                    ? allEvents 
+                    : allEvents.where((e) => e.category == _selectedCategory).toList();
+
                 if (events.isEmpty) {
                   return SliverFillRemaining(
                     child: Center(
@@ -140,7 +272,10 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                         children: [
                           Icon(Icons.event_note, size: 48, color: Colors.grey[300]),
                           const SizedBox(height: 16),
-                          Text('Quiet in ${widget.city}', style: Theme.of(context).textTheme.bodyMedium),
+                          Text(
+                             'No $_selectedCategory events found', 
+                             style: Theme.of(context).textTheme.bodyMedium
+                          ),
                           const SizedBox(height: 8),
                           TextButton(
                             onPressed: () => context.push('/create-event'),
@@ -151,6 +286,7 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                     ),
                   );
                 }
+
                 return SliverPadding(
                   padding: const EdgeInsets.fromLTRB(24, 0, 24, 100),
                   sliver: SliverList(
@@ -194,6 +330,17 @@ class _MinimalistEventCard extends ConsumerWidget {
   final String? userId;
 
   const _MinimalistEventCard({required this.event, required this.userId});
+
+  Color _getCategoryColor(String category) {
+    switch (category) {
+      case 'Adventure': return Colors.orange;
+      case 'Chill': return Colors.blue;
+      case 'Party': return Colors.purple;
+      case 'Nature': return Colors.green;
+      case 'Cultural': return Colors.red;
+      default: return Colors.grey;
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -254,6 +401,50 @@ class _MinimalistEventCard extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: _getCategoryColor(event.category).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              event.category.toUpperCase(),
+                              style: TextStyle(
+                                color: _getCategoryColor(event.category),
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          // City Badge
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[100],
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.location_on, size: 10, color: Colors.grey),
+                                const SizedBox(width: 2),
+                                Text(
+                                  event.city,
+                                  style: TextStyle(
+                                    fontSize: 10, 
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
                       Text(
                         event.title,
                         style: Theme.of(context).textTheme.titleLarge,
@@ -262,6 +453,14 @@ class _MinimalistEventCard extends ConsumerWidget {
                       Text(
                         DateFormat('h:mm a').format(event.eventDate),
                         style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Organized by ${event.creatorId == userId ? 'Me' : event.creatorName}',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.grey[600],
+                          fontStyle: FontStyle.italic,
+                        ),
                       ),
                     ],
                   ),
@@ -300,6 +499,23 @@ class _MinimalistEventCard extends ConsumerWidget {
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
                 ),
                 const Spacer(),
+
+                // Message Host Button
+                if (userId != null && userId != event.creatorId)
+                   IconButton(
+                     icon: const Icon(Icons.chat_bubble_outline, color: PremiumTheme.primary),
+                     tooltip: 'Message Host',
+                     onPressed: () async {
+                       try {
+                         final chat = await ref.read(socialRepositoryProvider).createDirectChat(userId!, event.creatorId);
+                         if (context.mounted) {
+                           context.push('/chats/direct/${chat.id}', extra: event.creatorName);
+                         }
+                       } catch (e) {
+                         if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                       }
+                     },
+                   ),
 
                 // Ownership Check: Delete & Review
                 if (userId != null && userId == event.creatorId) ...[
@@ -490,6 +706,23 @@ class _RequestsSheetState extends ConsumerState<_RequestsSheet> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
+                          icon: const Icon(Icons.chat_bubble_outline, color: Colors.blue),
+                          onPressed: () async {
+                              try {
+                                final currentUserId = ref.read(currentUserProvider);
+                                final chat = await ref.read(socialRepositoryProvider).createDirectChat(
+                                  currentUserId!,
+                                  user['userId']
+                                );
+                                if (context.mounted) {
+                                   context.push('/chats/direct/${chat.id}', extra: user['displayName']);
+                                } 
+                              } catch (e) {
+                                if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                              }
+                          },
+                        ),
+                        IconButton(
                           icon: const Icon(Icons.close, color: Colors.red),
                           onPressed: () => _handleAction(user['userId'], false),
                         ),
@@ -504,6 +737,53 @@ class _RequestsSheetState extends ConsumerState<_RequestsSheet> {
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+
+class _CityCard extends StatelessWidget {
+  final String city;
+  final String image;
+  final Color color;
+
+  const _CityCard({required this.city, required this.image, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.push('/explore/events?city=$city'),
+      child: Container(
+        width: 120,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: color,
+          image: DecorationImage(
+            image: NetworkImage(image),
+            fit: BoxFit.cover,
+            colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.3), BlendMode.darken),
+          ),
+          boxShadow: [
+            BoxShadow(color: color.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 5)),
+          ],
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+             borderRadius: BorderRadius.circular(20),
+             gradient: LinearGradient(
+               begin: Alignment.topCenter,
+               end: Alignment.bottomCenter,
+               colors: [Colors.transparent, Colors.black.withOpacity(0.8)],
+             ),
+          ),
+          padding: const EdgeInsets.all(12),
+          alignment: Alignment.bottomLeft,
+          child: Text(
+            city,
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+        ),
       ),
     );
   }

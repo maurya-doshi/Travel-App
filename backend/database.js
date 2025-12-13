@@ -48,6 +48,11 @@ db.serialize(() => {
     FOREIGN KEY(creatorId) REFERENCES users(uid)
   )`);
 
+  // Migration: Add category column (Safe to run multiple times, will error if exists but won't crash app if handled)
+  db.run("ALTER TABLE travel_events ADD COLUMN category TEXT DEFAULT 'General'", (err) => {
+    if (!err) console.log("Migrated: Added category column to travel_events");
+  });
+
   // 4. Group Chats Table
   db.run(`CREATE TABLE IF NOT EXISTS group_chats (
     id TEXT PRIMARY KEY,
@@ -118,41 +123,100 @@ db.serialize(() => {
     FOREIGN KEY(userId) REFERENCES users(uid) ON DELETE CASCADE
   )`);
 
+  // 8a. Direct Chats Table (1-on-1)
+  db.run(`CREATE TABLE IF NOT EXISTS direct_chats (
+    id TEXT PRIMARY KEY,
+    user1Id TEXT NOT NULL,
+    user2Id TEXT NOT NULL,
+    lastMessage TEXT,
+    lastMessageTime TEXT,
+    FOREIGN KEY(user1Id) REFERENCES users(uid),
+    FOREIGN KEY(user2Id) REFERENCES users(uid)
+  )`);
+
+  // 8b. Direct Messages Table
+  db.run(`CREATE TABLE IF NOT EXISTS direct_messages (
+    id TEXT PRIMARY KEY,
+    chatId TEXT NOT NULL,
+    senderId TEXT NOT NULL,
+    text TEXT NOT NULL,
+    timestamp TEXT NOT NULL,
+    FOREIGN KEY(chatId) REFERENCES direct_chats(id) ON DELETE CASCADE,
+    FOREIGN KEY(senderId) REFERENCES users(uid)
+  )`);
+
   // --- QUESTS ---
-  db.run(`CREATE TABLE IF NOT EXISTS quest_locations (
+  // New Schema for Dynamic Quests
+  db.run(`CREATE TABLE IF NOT EXISTS quests (
       id TEXT PRIMARY KEY,
-      city TEXT,
-      name TEXT,
+      city TEXT UNIQUE,
+      title TEXT,
+      description TEXT,
+      reward TEXT
+  )`);
+
+  db.run(`CREATE TABLE IF NOT EXISTS quest_steps (
+      id TEXT PRIMARY KEY,
+      questId TEXT,
+      title TEXT,
       description TEXT,
       latitude REAL,
       longitude REAL,
-      points INTEGER
-  )`); // Points of Interest
+      type TEXT,
+      clue TEXT,
+      mustTry TEXT,
+      points INTEGER DEFAULT 50,
+      FOREIGN KEY(questId) REFERENCES quests(id)
+  )`);
 
-  db.run(`CREATE TABLE IF NOT EXISTS user_quests (
+  // Progress tracking
+  db.run(`CREATE TABLE IF NOT EXISTS user_quest_progress (
       userId TEXT,
       questId TEXT,
+      stepId TEXT,
+      completedAt TEXT,
+      PRIMARY KEY (userId, stepId)
+  )`);
+
+  // Active Quests (User opt-in)
+  db.run(`CREATE TABLE IF NOT EXISTS user_active_quests (
+      userId TEXT,
+      questId TEXT,
+      startedAt TEXT,
       completedAt TEXT,
       PRIMARY KEY (userId, questId)
   )`);
 
-  // Seed Quests (Bangalore)
-  const quests = [
-    { id: 'q1', city: 'Bangalore', name: 'Cubbon Park', desc: 'The lung of the city.', lat: 12.9763, lng: 77.5929, pts: 100 },
-    { id: 'q2', city: 'Bangalore', name: 'Lalbagh', desc: 'Famous botanical garden.', lat: 12.9507, lng: 77.5848, pts: 150 },
-    { id: 'q3', city: 'Bangalore', name: 'Bangalore Palace', desc: 'Tudor-style architecture.', lat: 12.9988, lng: 77.5921, pts: 200 },
-    { id: 'q4', city: 'Bangalore', name: 'Vidhana Soudha', desc: 'Legislative building.', lat: 12.9797, lng: 77.5912, pts: 100 },
-    { id: 'q5', city: 'Bangalore', name: 'Tipu Sultan Palace', desc: 'Summer residence.', lat: 12.9594, lng: 77.5737, pts: 120 },
-    { id: 'q6', city: 'Bangalore', name: 'ISKCON Temple', desc: 'Krishna temple on hill.', lat: 13.0098, lng: 77.5511, pts: 150 },
-    { id: 'q7', city: 'Bangalore', name: 'UB City', desc: 'Luxury mall and skyline.', lat: 12.9719, lng: 77.5960, pts: 80 },
-    { id: 'q8', city: 'Bangalore', name: 'Commercial Street', desc: 'Shopping hub.', lat: 12.9822, lng: 77.6083, pts: 50 },
-    { id: 'q9', city: 'Bangalore', name: 'Ulsoor Lake', desc: 'Boating and islands.', lat: 12.9830, lng: 77.6200, pts: 90 },
-    { id: 'q10', city: 'Bangalore', name: 'Nandi Hills', desc: 'Sunrise view point.', lat: 13.3702, lng: 77.6835, pts: 300 }
-  ];
+  // Seed Quests from JSON
+  try {
+    const questData = require('./quests_data.json');
 
-  const insertQuest = db.prepare("INSERT OR IGNORE INTO quest_locations (id, city, name, description, latitude, longitude, points) VALUES (?, ?, ?, ?, ?, ?, ?)");
-  quests.forEach(q => insertQuest.run(q.id, q.city, q.name, q.desc, q.lat, q.lng, q.pts));
-  insertQuest.finalize();
+    const insertQuest = db.prepare("INSERT OR REPLACE INTO quests (id, city, title, description, reward) VALUES (?, ?, ?, ?, ?)");
+    const insertStep = db.prepare("INSERT OR REPLACE INTO quest_steps (id, questId, title, description, latitude, longitude, type, clue, mustTry) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
+    questData.forEach(q => {
+      const questId = q.city.toLowerCase() + '_main_quest';
+      insertQuest.run(questId, q.city, q.title, q.description, q.reward, (err) => {
+        if (err) console.error("Insert Quest Error:", err);
+      });
+
+      q.steps.forEach(s => {
+        const stepId = questId + '_step_' + s.id;
+        // Normalize lat/lng if string
+        const lat = parseFloat(s.latitude);
+        const lng = parseFloat(s.longitude);
+        insertStep.run(stepId, questId, s.title, s.description, lat, lng, s.type, s.clue, s.mustTry, (err) => {
+          if (err) console.error("Insert Step Error:", err);
+        });
+      });
+    });
+    insertQuest.finalize();
+    insertStep.finalize();
+    console.log('Quests seeded from JSON.');
+
+  } catch (e) {
+    console.warn('Skipping quest seeding (quests_data.json not found or invalid):', e.message);
+  }
 
   console.log('Database tables initialized.');
 });

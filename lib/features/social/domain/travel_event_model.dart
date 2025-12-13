@@ -9,6 +9,8 @@ class TravelEvent {
   final DateTime eventDate; 
   final bool isDateFlexible;
   final String creatorId; 
+  final String creatorName;
+  final String category;
   final List<String> participantIds; 
   final List<String> pendingRequestIds; 
   final bool requiresApproval; 
@@ -20,6 +22,8 @@ class TravelEvent {
     required this.title,
     required this.eventDate,
     required this.creatorId,
+    this.creatorName = 'Unknown',
+    this.category = 'General',
     required this.participantIds,
     this.pendingRequestIds = const [],
     this.requiresApproval = true,
@@ -37,6 +41,8 @@ class TravelEvent {
       title: map['title'] as String,
       eventDate: DateTime.parse(map['eventDate'] as String),
       creatorId: map['creatorId'] as String,
+      creatorName: map['creatorName'] as String? ?? 'Unknown',
+      category: map['category'] as String? ?? 'General',
       participantIds: List<String>.from(map['participantIds'] ?? []),
       pendingRequestIds: List<String>.from(map['pendingRequestIds'] ?? []),
       requiresApproval: map['requiresApproval'] ?? true,
@@ -56,6 +62,8 @@ class TravelEvent {
       'eventDate': eventDate.toIso8601String(),
       'isDateFlexible': isDateFlexible,
       'creatorId': creatorId,
+      'creatorName': creatorName,
+      'category': category,
       'participantIds': participantIds,
       'pendingRequestIds': pendingRequestIds,
       'requiresApproval': requiresApproval,

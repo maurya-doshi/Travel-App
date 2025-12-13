@@ -8,10 +8,13 @@ import 'package:travel_hackathon/features/discovery/presentation/discovery_provi
 import 'package:travel_hackathon/features/discovery/data/discovery_repository.dart';
 import 'package:travel_hackathon/features/discovery/domain/quest_model.dart';
 import 'package:travel_hackathon/features/auth/presentation/auth_providers.dart';
+import 'package:travel_hackathon/features/social/presentation/social_providers.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'dart:ui'; // For BackdropFilter
 import 'package:travel_hackathon/core/theme/premium_theme.dart';
+import 'package:travel_hackathon/features/discovery/presentation/widgets/city_search_sheet.dart';
+import 'package:travel_hackathon/core/services/city_service.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
@@ -48,34 +51,12 @@ class _MapScreenState extends ConsumerState<MapScreen> with TickerProviderStateM
   @override
   Widget build(BuildContext context) {
     final pinsAsync = ref.watch(mapPinsProvider(10.0));
-    final questsAsync = ref.watch(questsProvider('Bangalore'));
     final userLocation = ref.watch(userLocationProvider);
-
-    // Listen for Proximity
-    ref.listen(userLocationProvider, (previous, next) {
-      questsAsync.whenData((quests) {
-        for (var quest in quests) {
-          if (quest.isCompleted) continue;
-
-          final dist = const Distance().as(LengthUnit.Meter, 
-            LatLng(next.latitude, next.longitude), 
-            LatLng(quest.latitude, quest.longitude)
-          );
-
-          if (dist < 200) { // 200 meters unlock radius for easier testing
-             _unlockQuest(quest.id);
-          }
-        }
-      });
-    });
-
-    // Calculate Progress
-    int completedCount = 0;
-    int totalCount = 0;
-    questsAsync.whenData((quests) {
-      totalCount = quests.length;
-      completedCount = quests.where((q) => q.isCompleted).length;
-    });
+    final userId = ref.watch(currentUserProvider);
+    final activeQuestsAsync = userId != null 
+        ? ref.watch(activeQuestsProvider(userId)) 
+        : null;
+    final hasActiveQuest = activeQuestsAsync?.valueOrNull?.isNotEmpty ?? false;
 
     return Scaffold(
       extendBodyBehindAppBar: true, 
@@ -106,25 +87,6 @@ class _MapScreenState extends ConsumerState<MapScreen> with TickerProviderStateM
                 ),
               ),
               
-              // QUESTS LAYER (Gold Stars)
-              questsAsync.when(
-                data: (quests) => MarkerLayer(
-                  markers: quests.map((quest) {
-                    return Marker(
-                      point: LatLng(quest.latitude, quest.longitude),
-                      width: 80,
-                      height: 80,
-                      child: Tooltip(
-                        message: quest.name,
-                        child: _QuestMarker(quest: quest),
-                      ),
-                    );
-                  }).toList(),
-                ),
-                loading: () => const MarkerLayer(markers: []),
-                error: (e, s) => const MarkerLayer(markers: []),
-              ),
-
               // Normal Pins Layer
               pinsAsync.when(
                 data: (pins) => MarkerLayer(
@@ -173,7 +135,21 @@ class _MapScreenState extends ConsumerState<MapScreen> with TickerProviderStateM
               children: [
                 GestureDetector(
                   onTap: () {
-                    context.go('/city-selection');
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (context) => CitySearchSheet(
+                        onCitySelected: (city) async {
+                          Navigator.pop(context);
+                          // Fetch Coords
+                          final coords = await CityService().getCityCoordinates(city);
+                          if (coords != null) {
+                            _mapController.move(LatLng(coords[0], coords[1]), 13.0);
+                          }
+                        },
+                      ),
+                    );
                   },
                   child: Container(
                     height: 50,
@@ -212,66 +188,67 @@ class _MapScreenState extends ConsumerState<MapScreen> with TickerProviderStateM
                   ),
                 ).animate().slideY(begin: -1, duration: 600.ms, curve: Curves.easeOutBack),
 
-                const SizedBox(height: 12),
-
-                // QUEST PROGRESS BAR
-                if (totalCount > 0)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.9),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                         BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text("🏆 Quests: "),
-                        SizedBox(
-                          width: 100,
-                          child: LinearProgressIndicator(
-                            value: completedCount / totalCount,
-                            backgroundColor: Colors.grey[200],
-                            color: const Color(0xFFFFD700),
-                            minHeight: 8,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text("$completedCount/$totalCount", style: const TextStyle(fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                  ).animate().fadeIn(),
               ],
             ),
           ),
         ],
       ),
       
-      // 4. Premium FAB
-      floatingActionButton: Container(
-        margin: const EdgeInsets.only(bottom: 100),
-        decoration: BoxDecoration(
-          gradient: PremiumTheme.primaryGradient,
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-             BoxShadow(color: PremiumTheme.primary.withOpacity(0.4), blurRadius: 16, offset: const Offset(0, 8))
-          ],
-        ),
-        child: FloatingActionButton.extended(
-          heroTag: 'map_fab',
-          backgroundColor: Colors.transparent, 
-          elevation: 0,
-          highlightElevation: 0,
-          icon: const Icon(Icons.add_location_alt, color: Colors.white),
-          label: Text('Host Event', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold)),
-          onPressed: () {
-              context.push('/create-event');
-          },
-        ),
-      ).animate().scale(delay: 500.ms, curve: Curves.elasticOut),
+      // 4. FAB Area - Quest Button (if active) + Host Event
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Quest FAB - only show if user has active quest
+          if (hasActiveQuest)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: GestureDetector(
+                onTap: () {
+                  final activeQuest = activeQuestsAsync?.valueOrNull?.first;
+                  if (activeQuest != null) {
+                    context.push('/quests/${activeQuest.city}');
+                  } else {
+                    context.push('/quests');
+                  }
+                },
+                child: Container(
+                  width: 52,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(colors: [Color(0xFF4F7C82), Color(0xFF2E5E63)]),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(color: const Color(0xFF4F7C82).withOpacity(0.4), blurRadius: 12, offset: const Offset(0, 4)),
+                    ],
+                  ),
+                  child: const Icon(Icons.explore, color: Colors.white, size: 24),
+                ),
+              ).animate().scale(delay: 300.ms, curve: Curves.elasticOut),
+            ),
+          // Host Event FAB
+          Container(
+            margin: const EdgeInsets.only(bottom: 100),
+            decoration: BoxDecoration(
+              gradient: PremiumTheme.primaryGradient,
+              borderRadius: BorderRadius.circular(30),
+              boxShadow: [
+                 BoxShadow(color: PremiumTheme.primary.withOpacity(0.4), blurRadius: 16, offset: const Offset(0, 8))
+              ],
+            ),
+            child: FloatingActionButton.extended(
+              heroTag: 'map_fab',
+              backgroundColor: Colors.transparent, 
+              elevation: 0,
+              highlightElevation: 0,
+              icon: const Icon(Icons.add_location_alt, color: Colors.white),
+              label: Text('Host Event', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold)),
+              onPressed: () {
+                  context.push('/create-event');
+              },
+            ),
+          ).animate().scale(delay: 500.ms, curve: Curves.elasticOut),
+        ],
+      ),
     );
   }
 }
@@ -362,7 +339,7 @@ class _AnimatedMapMarker extends StatelessWidget {
                 width: 48, height: 48,
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFFA566FF), Color(0xFF7B66FF)],
+                    colors: [PremiumTheme.primary, PremiumTheme.secondary], // Use Theme
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -464,5 +441,57 @@ class _QuestCompleteDialog extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+// Active Quest Step Marker for Home Map
+class _ActiveQuestStepMarker extends StatelessWidget {
+  final int stepNumber;
+  final bool isCompleted;
+  final String questTitle;
+
+  const _ActiveQuestStepMarker({
+    required this.stepNumber,
+    required this.isCompleted,
+    required this.questTitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: '$questTitle - Step $stepNumber${isCompleted ? " ✓" : ""}',
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          gradient: isCompleted
+              ? LinearGradient(colors: [Colors.green.shade400, Colors.green.shade600])
+              : const LinearGradient(colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)]),
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white, width: 3),
+          boxShadow: [
+            BoxShadow(
+              color: isCompleted 
+                  ? Colors.green.withOpacity(0.4) 
+                  : const Color(0xFF6366F1).withOpacity(0.4),
+              blurRadius: 8,
+              spreadRadius: 1,
+            ),
+          ],
+        ),
+        child: Center(
+          child: isCompleted
+              ? const Icon(Icons.check, color: Colors.white, size: 20)
+              : Text(
+                  '$stepNumber',
+                  style: GoogleFonts.outfit(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+        ),
+      ),
+    ).animate().scale(delay: Duration(milliseconds: stepNumber * 50));
   }
 }

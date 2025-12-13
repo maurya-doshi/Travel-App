@@ -6,6 +6,7 @@ import 'package:travel_hackathon/features/auth/presentation/otp_verification_scr
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'dart:ui'; // For BackdropFilter
+import 'package:travel_hackathon/core/theme/premium_theme.dart';
 
 class SignupScreen extends ConsumerStatefulWidget {
   const SignupScreen({super.key});
@@ -151,8 +152,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Color(0xFF4A00E0), // Deep Purple
-                    Color(0xFF8E2DE2), // Bright Violet
+                    PremiumTheme.primary,
+                    PremiumTheme.accent,
                   ],
                 ),
               ),
@@ -269,7 +270,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                                 onPressed: _handleSignup,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.white,
-                                  foregroundColor: const Color(0xFF6A1B9A),
+                                  foregroundColor: PremiumTheme.primary,
                                   padding: const EdgeInsets.symmetric(vertical: 16),
                                   elevation: 0,
                                   shape: RoundedRectangleBorder(

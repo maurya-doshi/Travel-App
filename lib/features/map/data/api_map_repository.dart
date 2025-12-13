@@ -23,8 +23,11 @@ class ApiMapRepository implements MapRepository {
   Future<void> createPin(DestinationPin pin) async {
     await _apiService.post('/pins', {
       'city': pin.city,
-      'type': 'attraction', // default or from pin
-      'activeVisitorCount': pin.activeVisitorCount
+      'type': pin.type,
+      'activeVisitorCount': pin.activeVisitorCount,
+      'latitude': pin.latitude,
+      'longitude': pin.longitude,
+      'name': pin.city, // Use city name as pin name for now
     });
   }
 

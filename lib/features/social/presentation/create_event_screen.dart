@@ -10,6 +10,9 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:travel_hackathon/core/theme/premium_theme.dart';
 import 'package:travel_hackathon/core/constants/city_constants.dart';
 import 'package:travel_hackathon/core/services/city_service.dart';
+import 'package:travel_hackathon/features/map/presentation/map_providers.dart';
+import 'package:travel_hackathon/features/map/domain/destination_pin_model.dart';
+import 'package:travel_hackathon/features/discovery/presentation/widgets/city_search_sheet.dart';
 
 class CreateEventScreen extends ConsumerStatefulWidget {
   const CreateEventScreen({super.key});
@@ -24,6 +27,7 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
   String _selectedCity = 'Bangalore'; // Default
   DateTime _selectedDate = DateTime.now();
   TimeOfDay _selectedTime = TimeOfDay.now();
+  String _selectedCategory = 'General';
   bool _requiresApproval = false;
   bool _isFlexible = false;
   bool _isLoading = false;
@@ -60,13 +64,41 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
       creatorId: currentUser,
       requiresApproval: _requiresApproval,
       participantIds: [currentUser],
+      category: _selectedCategory,
     );
 
     try {
       await ref.read(socialRepositoryProvider).createEvent(event);
+      
+      // Auto-create Map Pin for the new city
+      print("Creating Event done. Now fetching coords for $_selectedCity");
+      final cityCoords = await CityService().getCityCoordinates(_selectedCity);
+      
+      if (cityCoords != null) {
+        print("Coords found: $cityCoords. Creating Pin...");
+        final pin = DestinationPin(
+          id: '', // Backend assigns ID
+          city: _selectedCity,
+          type: 'destination', // Created by event
+          latitude: cityCoords[0],
+          longitude: cityCoords[1],
+          activeVisitorCount: 1,
+          createdAt: DateTime.now(),
+        );
+        // Fire and forget pin creation (safely)
+        ref.read(mapRepositoryProvider).createPin(pin).then((_) {
+           print("Pin created successfully");
+           ref.invalidate(mapPinsProvider); // Force Map Refresh!
+        }).catchError((e) {
+           print("Pin creation failed: $e");
+        });
+      } else {
+        print("Could not find coords for $_selectedCity");
+      }
+
       if (mounted) {
-        // Updated redirect to the new events route
-        context.go('/explore/events?city=$_selectedCity');
+        Navigator.pop(context); // Close loading dialog
+        context.push('/explore/events?city=$_selectedCity'); // Go to new city
         // ignore: unused_result
         ref.refresh(eventsForCityProvider(_selectedCity));
       }
@@ -119,7 +151,7 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
       backgroundColor: Colors.white,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (context) => _CitySelectionSheet(
+      builder: (context) => CitySearchSheet(
         onCitySelected: (city) {
           setState(() => _selectedCity = city);
           Navigator.pop(context);
@@ -192,6 +224,40 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
                 ),
               ),
             ).animate(delay: 300.ms).fadeIn().slideY(begin: 0.2),
+            
+            const SizedBox(height: 32),
+
+            // 1.5 WHAT (Category)
+            _SectionHeader(title: 'VIBE', icon: Icons.category_outlined, delay: 350),
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 50,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  'General', 'Adventure', 'Chill', 'Party', 'Nature', 'Cultural'
+                ].map((cat) {
+                  final isSelected = _selectedCategory == cat;
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: ChoiceChip(
+                      label: Text(cat),
+                      selected: isSelected,
+                      onSelected: (selected) {
+                        if (selected) setState(() => _selectedCategory = cat);
+                      },
+                      selectedColor: PremiumTheme.primary,
+                      labelStyle: TextStyle(
+                        color: isSelected ? Colors.white : Colors.grey[700],
+                        fontWeight: FontWeight.bold,
+                      ),
+                      backgroundColor: Colors.grey[100],
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20), side: BorderSide.none),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
             
             const SizedBox(height: 32),
 
@@ -383,125 +449,4 @@ class _SwitchCard extends StatelessWidget {
   }
 }
 
-class _CitySelectionSheet extends StatefulWidget {
-  final Function(String) onCitySelected;
-  const _CitySelectionSheet({required this.onCitySelected});
 
-  @override
-  State<_CitySelectionSheet> createState() => _CitySelectionSheetState();
-}
-
-class _CitySelectionSheetState extends State<_CitySelectionSheet> {
-  final TextEditingController _searchController = TextEditingController();
-  List<String> _allCities = [];
-  List<String> _filteredCities = [];
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadCities();
-    _searchController.addListener(_onSearchChanged);
-  }
-
-  Future<void> _loadCities() async {
-    final cities = await CityService().getIndianCities();
-    if (mounted) {
-      setState(() {
-        _allCities = cities;
-        _isLoading = false;
-      });
-    }
-  }
-
-  void _onSearchChanged() {
-    final query = _searchController.text.toLowerCase();
-    setState(() {
-      _filteredCities = _allCities
-          .where((city) => city.toLowerCase().contains(query))
-          .toList();
-    });
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isSearching = _searchController.text.isNotEmpty;
-    
-    return DraggableScrollableSheet(
-      initialChildSize: 0.8,
-      minChildSize: 0.5,
-      maxChildSize: 0.95,
-      expand: false,
-      builder: (context, scrollController) {
-        return Column(
-          children: [
-            const SizedBox(height: 16),
-             Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
-            ),
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: TextField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  hintText: 'Search city...',
-                  prefixIcon: const Icon(Icons.search),
-                  filled: true,
-                  fillColor: Colors.grey[100],
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Divider(color: Colors.grey[200]),
-            if (_isLoading)
-               const LinearProgressIndicator(),
-            Expanded(
-              child: ListView.builder(
-                controller: scrollController,
-                padding: const EdgeInsets.only(bottom: 100),
-                itemCount: isSearching ? _filteredCities.length : kSupportedCities.length,
-                itemBuilder: (context, index) {
-                  if (!isSearching) {
-                    final cityData = kSupportedCities[index];
-                    return ListTile(
-                      leading: const Icon(Icons.star, color: Colors.amber),
-                      title: Text(cityData['name'], style: GoogleFonts.lato(fontSize: 16, fontWeight: FontWeight.bold)),
-                      subtitle: const Text('Popular Destination'),
-                      onTap: () => widget.onCitySelected(cityData['name']),
-                    );
-                  } else {
-                    final cityName = _filteredCities[index];
-                    return ListTile(
-                      leading: const Icon(Icons.location_city, color: Colors.grey),
-                      title: Text(cityName, style: GoogleFonts.lato(fontSize: 16)),
-                      onTap: () => widget.onCitySelected(cityName),
-                    );
-                  }
-                },
-              ),
-            ),
-             if (isSearching && _filteredCities.isEmpty && !_isLoading)
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Text('No cities found', style: GoogleFonts.lato(color: Colors.grey)),
-              ),
-          ],
-        );
-      },
-    );
-  }
-}

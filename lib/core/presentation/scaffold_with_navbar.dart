@@ -50,7 +50,8 @@ class ScaffoldWithNavBar extends StatelessWidget {
                   children: [
                     _buildNavItem(context, 0, Icons.map_outlined, Icons.map_rounded),
                     _buildNavItem(context, 1, Icons.calendar_month_outlined, Icons.calendar_month),
-                    _buildNavItem(context, 2, Icons.person_outline, Icons.person),
+                    _buildNavItem(context, 2, Icons.explore_outlined, Icons.explore),
+                    _buildNavItem(context, 3, Icons.person_outline, Icons.person),
                   ],
                 ),
               ),

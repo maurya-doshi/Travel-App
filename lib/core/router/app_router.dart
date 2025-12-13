@@ -13,6 +13,10 @@ import 'package:travel_hackathon/features/auth/presentation/auth_providers.dart'
 import 'package:travel_hackathon/features/map/presentation/map_screen.dart'; 
 import 'package:travel_hackathon/features/social/presentation/events_screen.dart'; 
 import 'package:travel_hackathon/features/social/presentation/chat_screen.dart'; 
+import 'package:travel_hackathon/features/social/presentation/direct_chat_list_screen.dart';
+import 'package:travel_hackathon/features/social/presentation/direct_chat_screen.dart';
+import 'package:travel_hackathon/features/social/presentation/quest_screen.dart'; // Quests
+import 'package:travel_hackathon/features/social/presentation/quest_details_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _sectionNavigatorKey = GlobalKey<NavigatorState>(); 
@@ -22,6 +26,7 @@ final routerProvider = Provider<GoRouter>((ref) {
   final _rootNavigatorKey = GlobalKey<NavigatorState>();
   final _shellNavigatorMapKey = GlobalKey<NavigatorState>(debugLabel: 'shellMap');
   final _shellNavigatorExploreKey = GlobalKey<NavigatorState>(debugLabel: 'shellExplore');
+  final _shellNavigatorQuestsKey = GlobalKey<NavigatorState>(debugLabel: 'shellQuests');
   final _shellNavigatorProfileKey = GlobalKey<NavigatorState>(debugLabel: 'shellProfile');
 
   final userId = ref.watch(currentUserProvider);
@@ -73,7 +78,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/explore/events',
                 builder: (context, state) {
-                  final city = state.uri.queryParameters['city'] ?? 'Bangalore';
+                  final city = state.uri.queryParameters['city'] ?? 'All';
                   return EventsScreen(city: city);
                 }, 
               ),
@@ -88,7 +93,27 @@ final routerProvider = Provider<GoRouter>((ref) {
             ],
           ),
 
-          // BRANCH 3: Profile
+          // BRANCH 3: Quests
+          StatefulShellBranch(
+            navigatorKey: _shellNavigatorQuestsKey,
+            routes: [
+              GoRoute(
+                path: '/quests',
+                builder: (context, state) => const QuestDiscoveryScreen(),
+                routes: [
+                  GoRoute(
+                    path: ':city',
+                    builder: (context, state) {
+                      final city = state.pathParameters['city'] ?? '';
+                      return QuestDetailsScreen(city: city);
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          // BRANCH 4: Profile
           StatefulShellBranch(
             navigatorKey: _shellNavigatorProfileKey,
             routes: [
@@ -105,6 +130,19 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final id = state.pathParameters['id']!;
           return ChatScreen(chatId: id);
+        },
+      ),
+      // Direct Messages
+      GoRoute(
+        path: '/messages',
+        builder: (context, state) => const DirectChatListScreen(),
+      ),
+      GoRoute(
+        path: '/chats/direct/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          final otherName = state.extra as String? ?? 'Chat';
+          return DirectChatScreen(chatId: id, otherUserName: otherName);
         },
       ),
     ],

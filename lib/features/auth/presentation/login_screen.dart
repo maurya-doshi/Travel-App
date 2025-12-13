@@ -6,6 +6,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'dart:ui';
 import 'package:travel_hackathon/features/auth/presentation/auth_providers.dart';
 import 'package:travel_hackathon/features/auth/presentation/otp_verification_screen.dart';
+import 'package:travel_hackathon/core/theme/premium_theme.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -99,8 +100,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Color(0xFF4A00E0), 
-                    Color(0xFF8E2DE2), 
+                    PremiumTheme.primary,
+                    PremiumTheme.accent,
                   ],
                 ),
               ),
@@ -214,7 +215,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white, 
-                            foregroundColor: const Color(0xFF6A1B9A),
+                            foregroundColor: PremiumTheme.primary,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
@@ -282,7 +283,7 @@ class _LoginOptionTab extends StatelessWidget {
         child: Text(
           title,
           style: GoogleFonts.lato(
-            color: isSelected ? const Color(0xFF6A1B9A) : Colors.white,
+            color: isSelected ? PremiumTheme.primary : Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),

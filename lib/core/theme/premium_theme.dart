@@ -2,24 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class PremiumTheme {
-  // Colors (3D Pastel / Claymorphism)
-  static const Color primary = Color(0xFF7B66FF); // Vibrant Purple
-  static const Color secondary = Color(0xFF4ECDC4); // Soft Cyan
-  static const Color accent = Color(0xFFFF9F1C); // Playful Orange
-  static const Color background = Color(0xFFF3F0FF); // Light Lavender BG
+  // Colors (Winter Chill Palette)
+  static const Color primary = Color(0xFF4F7C82); // Deep Teal
+  static const Color secondary = Color(0xFF93B1B5); // Muted Blue-Grey
+  static const Color accent = Color(0xFF0B2E33); // Darkest Teal (High Contrast)
+  static const Color warning = Color(0xFFF6D55C); // Keep Yellow for warnings
+  static const Color background = Color(0xFFE8F6F8); // Very Light version of #B8E3E9 for BG
   static const Color surface = Colors.white;
-  static const Color textPrimary = Color(0xFF2D2B55); // Deep Indigo Text
-  static const Color textSecondary = Color(0xFF8F9BB3); // Soft Grey
+  static const Color textPrimary = Color(0xFF0B2E33); // Deepest Teal
+  static const Color textSecondary = Color(0xFF4F7C82); // Primary Teal for secondary text
 
   // Gradients
   static const LinearGradient primaryGradient = LinearGradient(
-    colors: [Color(0xFFA566FF), Color(0xFF7B66FF)],
+    colors: [Color(0xFF4F7C82), Color(0xFF2E5E63)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient accentGradient = LinearGradient(
-    colors: [Color(0xFF4ECDC4), Color(0xFF2AB7CA)],
+    colors: [Color(0xFF93B1B5), Color(0xFF4F7C82)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );

@@ -249,13 +249,17 @@ app.get('/events', async (req, res) => {
             const participants = await allQuery('SELECT userId FROM event_participants WHERE eventId = ?', [event.id]);
             const pending = await allQuery('SELECT userId FROM event_requests WHERE eventId = ?', [event.id]);
 
+            // Get Creator Name
+            const creator = await getQuery('SELECT displayName FROM users WHERE uid = ?', [event.creatorId]);
+
             return {
                 ...event,
                 // Boolean conversion for SQLite integers
                 isDateFlexible: !!event.isDateFlexible,
                 requiresApproval: !!event.requiresApproval,
                 participantIds: participants.map(p => p.userId),
-                pendingRequestIds: pending.map(p => p.userId)
+                pendingRequestIds: pending.map(p => p.userId),
+                creatorName: creator ? creator.displayName : 'Unknown Traveler'
             };
         }));
         res.json(enrichedEvents);
@@ -266,13 +270,13 @@ app.get('/events', async (req, res) => {
 
 // Create Event
 app.post('/events', async (req, res) => {
-    const { city, title, eventDate, isDateFlexible, creatorId, requiresApproval } = req.body;
+    const { city, title, eventDate, isDateFlexible, creatorId, requiresApproval, category } = req.body;
     const id = uuidv4();
     try {
         await runQuery(`
-      INSERT INTO travel_events (id, city, title, eventDate, isDateFlexible, creatorId, requiresApproval)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `, [id, city, title, eventDate, isDateFlexible ? 1 : 0, creatorId, requiresApproval ? 1 : 0]);
+      INSERT INTO travel_events (id, city, title, eventDate, isDateFlexible, creatorId, requiresApproval, category)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `, [id, city, title, eventDate, isDateFlexible ? 1 : 0, creatorId, requiresApproval ? 1 : 0, category || 'General']);
 
         // Add creator as participant
         await runQuery('INSERT INTO event_participants (eventId, userId) VALUES (?, ?)', [id, creatorId]);
@@ -617,29 +621,11 @@ app.post('/auth/login', async (req, res) => {
 // --- QUESTS ---
 
 // Get API for Quests in a City (Unordered, Proximity Logic on Client)
-app.get('/quests', async (req, res) => {
-    const { city, userId } = req.query;
-    try {
-        const quests = await allQuery('SELECT * FROM quest_locations WHERE city = ?', [city]);
+// Legacy route removed
 
-        let completedIds = [];
-        if (userId) {
-            const completed = await allQuery('SELECT questId FROM user_quests WHERE userId = ?', [userId]);
-            completedIds = completed.map(c => c.questId);
-        }
-
-        const enriched = quests.map(q => ({
-            ...q,
-            isCompleted: completedIds.includes(q.id)
-        }));
-
-        res.json(enriched);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// Complete a Quest (Triggered by Proximity)
+// LEGACY: Complete a Quest (Triggered by Proximity) - DISABLED: conflicts with /quests/step/complete
+// This route pattern /quests/:id/complete was catching /quests/step/complete requests
+/*
 app.post('/quests/:id/complete', async (req, res) => {
     const { userId } = req.body;
     const questId = req.params.id;
@@ -660,7 +646,281 @@ app.post('/quests/:id/complete', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+*/
 
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+// --- DIRECT MESSAGES (DMs) ---
+
+// 1. Get or Create Direct Chat
+app.post('/chats/direct', async (req, res) => {
+    const { user1Id, user2Id } = req.body;
+    if (!user1Id || !user2Id) return res.status(400).json({ error: 'Missing user IDs' });
+
+    try {
+        // Check if chat exists (in either direction)
+        const existing = await getQuery(
+            `SELECT * FROM direct_chats WHERE (user1Id = ? AND user2Id = ?) OR (user1Id = ? AND user2Id = ?)`,
+            [user1Id, user2Id, user2Id, user1Id]
+        );
+
+        if (existing) {
+            return res.json(existing);
+        }
+
+        // Create new
+        const id = uuidv4();
+        const now = new Date().toISOString();
+        await runQuery(
+            `INSERT INTO direct_chats (id, user1Id, user2Id, lastMessage, lastMessageTime) VALUES (?, ?, ?, ?, ?)`,
+            [id, user1Id, user2Id, '', now]
+        );
+        res.json({ id, user1Id, user2Id, lastMessage: '', lastMessageTime: now });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// 2. Get All Direct Chats for a User
+app.get('/chats/direct/user/:userId', async (req, res) => {
+    const { userId } = req.params;
+    try {
+        const chats = await allQuery(
+            `SELECT * FROM direct_chats WHERE user1Id = ? OR user2Id = ? ORDER BY lastMessageTime DESC`,
+            [userId, userId]
+        );
+
+        // Enrich with other user's name
+        const enriched = await Promise.all(chats.map(async (chat) => {
+            const otherId = chat.user1Id === userId ? chat.user2Id : chat.user1Id;
+            const otherUser = await getQuery(`SELECT displayName, email FROM users WHERE uid = ?`, [otherId]);
+            return {
+                ...chat,
+                otherUser: otherUser || { displayName: 'Unknown', email: '' }
+            };
+        }));
+
+        res.json(enriched);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// 3. Get Messages for a Direct Chat
+app.get('/chats/direct/:chatId/messages', async (req, res) => {
+    try {
+        const msgs = await allQuery(
+            `SELECT * FROM direct_messages WHERE chatId = ? ORDER BY timestamp ASC`,
+            [req.params.chatId]
+        );
+
+        // Enrich with sender name
+        const enriched = await Promise.all(msgs.map(async (m) => {
+            const sender = await getQuery('SELECT displayName FROM users WHERE uid = ?', [m.senderId]);
+            return {
+                ...m,
+                senderName: sender ? sender.displayName : 'Unknown'
+            };
+        }));
+
+        res.json(enriched);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// 4. Send Direct Message
+app.post('/chats/direct/:chatId/messages', async (req, res) => {
+    const { senderId, text } = req.body;
+    const { chatId } = req.params;
+    const id = uuidv4();
+    const timestamp = new Date().toISOString();
+
+    try {
+        await runQuery(
+            `INSERT INTO direct_messages (id, chatId, senderId, text, timestamp) VALUES (?, ?, ?, ?, ?)`,
+            [id, chatId, senderId, text, timestamp]
+        );
+
+        // Update last message in chat
+        await runQuery(
+            `UPDATE direct_chats SET lastMessage = ?, lastMessageTime = ? WHERE id = ?`,
+            [text, timestamp, chatId]
+        );
+
+        res.json({ success: true, id, timestamp });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// --- QUESTS API ---
+app.get('/quests', async (req, res) => {
+    try {
+        const quests = await allQuery('SELECT * FROM quests');
+
+        // Enrich with steps
+        const enriched = await Promise.all(quests.map(async (q) => {
+            const steps = await allQuery('SELECT * FROM quest_steps WHERE questId = ?', [q.id]);
+            return { ...q, steps };
+        }));
+
+        res.json(enriched);
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.get('/quests/city/:city', async (req, res) => {
+    try {
+        const { city } = req.params;
+        const quest = await getQuery('SELECT * FROM quests WHERE city = ? COLLATE NOCASE', [city]); // Case insensitive
+        if (!quest) return res.status(404).json({ error: 'No quest found for this city' });
+
+        const steps = await allQuery('SELECT * FROM quest_steps WHERE questId = ? ORDER BY points ASC', [quest.id]); // Just verifying sort order if needed
+        res.json({ ...quest, steps });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// --- QUEST PROGRESS APIs ---
+
+// Join a quest (opt-in)
+app.post('/quests/join', async (req, res) => {
+    const { userId, questId } = req.body;
+    console.log('JOIN quest request:', { userId, questId });
+    try {
+        const result = await runQuery(
+            'INSERT OR IGNORE INTO user_active_quests (userId, questId, startedAt) VALUES (?, ?, ?)',
+            [userId, questId, new Date().toISOString()]
+        );
+        console.log('JOIN result:', result);
+        res.json({ success: true, message: 'Quest joined!' });
+    } catch (e) {
+        console.error('JOIN error:', e);
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// Quit a quest (resets progress)
+app.post('/quests/quit', async (req, res) => {
+    const { userId, questId } = req.body;
+    console.log('QUIT quest request:', { userId, questId });
+    try {
+        // Remove from active quests
+        await runQuery('DELETE FROM user_active_quests WHERE userId = ? AND questId = ?', [userId, questId]);
+        // Reset progress for this quest
+        await runQuery('DELETE FROM user_quest_progress WHERE userId = ? AND questId = ?', [userId, questId]);
+        console.log('QUIT completed for:', { userId, questId });
+        res.json({ success: true, message: 'Quest quit, progress reset.' });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Get user's active quests
+app.get('/quests/active/:userId', async (req, res) => {
+    try {
+        const activeQuests = await allQuery(
+            `SELECT uaq.*, q.title, q.city, q.description, q.reward 
+             FROM user_active_quests uaq 
+             JOIN quests q ON uaq.questId = q.id 
+             WHERE uaq.userId = ?`,
+            [req.params.userId]
+        );
+
+        // Enrich with steps and progress
+        const enriched = await Promise.all(activeQuests.map(async (aq) => {
+            const steps = await allQuery('SELECT * FROM quest_steps WHERE questId = ?', [aq.questId]);
+            const progress = await allQuery(
+                'SELECT stepId FROM user_quest_progress WHERE userId = ? AND questId = ?',
+                [req.params.userId, aq.questId]
+            );
+            const completedStepIds = progress.map(p => p.stepId);
+            return {
+                ...aq,
+                steps: steps.map(s => ({ ...s, isCompleted: completedStepIds.includes(s.id) })),
+                completedCount: completedStepIds.length,
+                totalSteps: steps.length
+            };
+        }));
+
+        res.json(enriched);
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Mark a step as completed
+app.post('/quests/step/complete', async (req, res) => {
+    const { userId, questId, stepId } = req.body;
+    console.log('Step completion request:', { userId, questId, stepId });
+    try {
+        const result = await runQuery(
+            'INSERT OR IGNORE INTO user_quest_progress (userId, questId, stepId, completedAt) VALUES (?, ?, ?, ?)',
+            [userId, questId, stepId, new Date().toISOString()]
+        );
+        console.log('Insert result:', result);
+
+        // Check if all steps are now complete
+        const totalSteps = await getQuery('SELECT COUNT(*) as count FROM quest_steps WHERE questId = ?', [questId]);
+        const completedSteps = await getQuery(
+            'SELECT COUNT(*) as count FROM user_quest_progress WHERE userId = ? AND questId = ?',
+            [userId, questId]
+        );
+
+        const isQuestComplete = completedSteps.count >= totalSteps.count;
+
+        if (isQuestComplete) {
+            // Mark quest as completed
+            await runQuery(
+                'UPDATE user_active_quests SET completedAt = ? WHERE userId = ? AND questId = ?',
+                [new Date().toISOString(), userId, questId]
+            );
+
+            // Get quest reward and update user XP
+            const quest = await getQuery('SELECT reward FROM quests WHERE id = ?', [questId]);
+            if (quest && quest.reward) {
+                // Extract number from reward string (e.g., "500 XP" -> 500)
+                const xpMatch = quest.reward.match(/(\d+)/);
+                if (xpMatch) {
+                    const xpAmount = parseInt(xpMatch[1]);
+                    await runQuery(
+                        'UPDATE users SET explorerPoints = explorerPoints + ? WHERE uid = ?',
+                        [xpAmount, userId]
+                    );
+                }
+            }
+        }
+
+        res.json({
+            success: true,
+            isQuestComplete,
+            completedCount: completedSteps.count,
+            totalSteps: totalSteps.count
+        });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Get progress for a specific quest
+app.get('/quests/progress/:userId/:questId', async (req, res) => {
+    try {
+        const { userId, questId } = req.params;
+        const progress = await allQuery(
+            'SELECT stepId, completedAt FROM user_quest_progress WHERE userId = ? AND questId = ?',
+            [userId, questId]
+        );
+        const activeQuest = await getQuery(
+            'SELECT * FROM user_active_quests WHERE userId = ? AND questId = ?',
+            [userId, questId]
+        );
+        res.json({
+            isJoined: !!activeQuest,
+            isCompleted: activeQuest?.completedAt != null,
+            completedSteps: progress
+        });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Legacy endpoint (keep for compatibility)
+app.get('/quests/progress/:userId', async (req, res) => {
+    try {
+        const progress = await allQuery('SELECT * FROM user_quest_progress WHERE userId = ?', [req.params.userId]);
+        res.json(progress);
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT}`);
 });
