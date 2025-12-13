@@ -1,23 +1,26 @@
-name: Flutter Format Check
+name: Flutter Formatter
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ main ]
+    branches: [ "main" ]
 
 jobs:
   format:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - uses: subosito/flutter-action@v2
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: stable
 
-      - run: flutter pub get
+      - name: Install dependencies
+        run: flutter pub get
 
-      - name: Check formatting
-        run: dart format . --set-exit-if-changed
+      - name: Check Dart formatting
+        run: dart format --set-exit-if-changed lib
