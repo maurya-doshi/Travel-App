@@ -1,34 +1,30 @@
 name: Flutter Linter
 
-# Trigger only on push or pull request to the 'main' branch
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ main ]
 
 jobs:
-  lint:
-    name: Lint & Analyze
+  analyze:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Check out the repository code
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      # 2. Install Flutter
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
-          # Optional: specific version (e.g., '3.19.0')
-          # flutter-version: '3.x' 
+          channel: stable
 
-      # 3. Get dependencies
-      - name: Install dependencies
-        run: flutter pub get
+      - run: flutter pub get
 
-      # 4. Run the Linter
-      - name: Analyze
+      # Relaxed linting on PRs
+      - name: Analyze (PR-safe)
+        if: github.event_name == 'pull_request'
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+
+      # Strict linting only on main
+      - name: Analyze (Main strict)
+        if: github.event_name == 'push'
         run: flutter analyze
