@@ -1,0 +1,32 @@
+name: Flutter Format Check
+
+# Trigger only on push or pull request to the 'main' branch
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  format:
+    name: Check Formatting
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      # 'dart format' does not strictly require 'flutter pub get', 
+      # but it is safer to include if your formatting depends on generated code.
+      - name: Install dependencies
+        run: flutter pub get
+
+      # The flag --set-exit-if-changed will fail the workflow 
+      # if any file needs formatting.
+      - name: Verify Formatting
+        run: dart format . --set-exit-if-changed
