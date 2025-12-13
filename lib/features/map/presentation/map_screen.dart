@@ -15,6 +15,7 @@ import 'dart:ui'; // For BackdropFilter
 import 'package:travel_hackathon/core/theme/premium_theme.dart';
 import 'package:travel_hackathon/features/discovery/presentation/widgets/city_search_sheet.dart';
 import 'package:travel_hackathon/core/services/city_service.dart';
+import 'package:travel_hackathon/features/safety/presentation/sos_button.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
@@ -98,7 +99,7 @@ class _MapScreenState extends ConsumerState<MapScreen> with TickerProviderStateM
                       child: GestureDetector(
                         onTap: () {
                           if (pin.city != null) {
-                            context.push('/explore/events?city=${pin.city}');
+                            context.push('/bulletin?city=${Uri.encodeComponent(pin.city!)}');
                           }
                         },
                         child: _AnimatedMapMarker(
@@ -198,6 +199,11 @@ class _MapScreenState extends ConsumerState<MapScreen> with TickerProviderStateM
       floatingActionButton: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // SOS Safety Button
+          const Padding(
+            padding: EdgeInsets.only(bottom: 12),
+            child: SosButton(),
+          ),
           // Quest FAB - only show if user has active quest
           if (hasActiveQuest)
             Padding(

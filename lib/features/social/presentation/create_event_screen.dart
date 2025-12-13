@@ -98,7 +98,7 @@ class _CreateEventScreenState extends ConsumerState<CreateEventScreen> {
 
       if (mounted) {
         Navigator.pop(context); // Close loading dialog
-        context.push('/explore/events?city=$_selectedCity'); // Go to new city
+        context.go('/bulletin'); // Go to bulletin board
         // ignore: unused_result
         ref.refresh(eventsForCityProvider(_selectedCity));
       }

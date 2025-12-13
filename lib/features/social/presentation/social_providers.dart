@@ -61,3 +61,8 @@ final activeQuestsProvider = FutureProvider.family<List<Quest>, String>((ref, us
 final questProgressProvider = FutureProvider.family<Map<String, dynamic>, ({String userId, String questId})>((ref, params) async {
   return ref.watch(socialRepositoryProvider).getQuestProgress(params.userId, params.questId);
 });
+
+// Chat Details (event info + members)
+final chatDetailsProvider = FutureProvider.family<Map<String, dynamic>, String>((ref, chatId) async {
+  return ref.watch(socialRepositoryProvider).getChatDetails(chatId);
+});

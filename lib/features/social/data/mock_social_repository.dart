@@ -252,4 +252,10 @@ class MockSocialRepository implements SocialRepository {
   Future<Map<String, dynamic>> completeStep(String userId, String questId, String stepId) async => {};
   @override
   Future<Map<String, dynamic>> getQuestProgress(String userId, String questId) async => {'isJoined': false, 'isCompleted': false, 'completedSteps': []};
+
+  // Chat Details & Leave (stubs)
+  @override
+  Future<Map<String, dynamic>> getChatDetails(String chatId) async => {'eventTitle': 'Mock Event', 'members': []};
+  @override
+  Future<void> leaveEvent(String eventId, String userId) async {}
 }

@@ -17,6 +17,10 @@ import 'package:travel_hackathon/features/social/presentation/direct_chat_list_s
 import 'package:travel_hackathon/features/social/presentation/direct_chat_screen.dart';
 import 'package:travel_hackathon/features/social/presentation/quest_screen.dart'; // Quests
 import 'package:travel_hackathon/features/social/presentation/quest_details_screen.dart';
+import 'package:travel_hackathon/features/auth/presentation/edit_profile_screen.dart';
+import 'package:travel_hackathon/features/social/presentation/bulletin_board_screen.dart';
+import 'package:travel_hackathon/features/social/presentation/chats_screen.dart';
+import 'package:travel_hackathon/features/splash/presentation/splash_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _sectionNavigatorKey = GlobalKey<NavigatorState>(); 
@@ -25,19 +29,24 @@ final routerProvider = Provider<GoRouter>((ref) {
   // Global key for valid context in shell
   final _rootNavigatorKey = GlobalKey<NavigatorState>();
   final _shellNavigatorMapKey = GlobalKey<NavigatorState>(debugLabel: 'shellMap');
-  final _shellNavigatorExploreKey = GlobalKey<NavigatorState>(debugLabel: 'shellExplore');
+  final _shellNavigatorBulletinKey = GlobalKey<NavigatorState>(debugLabel: 'shellBulletin');
+  final _shellNavigatorChatsKey = GlobalKey<NavigatorState>(debugLabel: 'shellChats');
   final _shellNavigatorQuestsKey = GlobalKey<NavigatorState>(debugLabel: 'shellQuests');
   final _shellNavigatorProfileKey = GlobalKey<NavigatorState>(debugLabel: 'shellProfile');
 
   final userId = ref.watch(currentUserProvider);
 
   return GoRouter(
-    initialLocation: '/signup',
+    initialLocation: '/splash',
     navigatorKey: _rootNavigatorKey,
     redirect: (context, state) {
       final isLoggedIn = userId != null;
       final path = state.uri.toString();
       final isAuthRoute = path == '/signup' || path == '/login';
+      final isSplash = path == '/splash';
+
+      // Allow splash to play
+      if (isSplash) return null;
 
       if (!isLoggedIn && !isAuthRoute) return '/signup';
       if (isLoggedIn && isAuthRoute) return '/map';
@@ -45,6 +54,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
+      // SPLASH (No Shell)
+      GoRoute(
+        path: '/splash',
+        builder: (context, state) => const SplashScreen(),
+      ),
       // AUTH (No Shell)
       GoRoute(
         path: '/signup',
@@ -71,29 +85,36 @@ final routerProvider = Provider<GoRouter>((ref) {
             ],
           ),
 
-          // BRANCH 2: Events (or Explore based on the new keys)
+          // BRANCH 2: Bulletin Board (Public Events)
           StatefulShellBranch(
-            navigatorKey: _shellNavigatorExploreKey, 
+            navigatorKey: _shellNavigatorBulletinKey, 
             routes: [
               GoRoute(
-                path: '/explore/events',
+                path: '/bulletin',
                 builder: (context, state) {
-                  final city = state.uri.queryParameters['city'] ?? 'All';
-                  return EventsScreen(city: city);
-                }, 
+                  final city = state.uri.queryParameters['city'];
+                  return BulletinBoardScreen(initialCity: city);
+                },
               ),
               GoRoute(
                 path: '/create-event',
                 builder: (context, state) => const CreateEventScreen(),
               ),
+            ],
+          ),
+
+          // BRANCH 3: Chats (Group Chats + DMs)
+          StatefulShellBranch(
+            navigatorKey: _shellNavigatorChatsKey,
+            routes: [
               GoRoute(
-                path: '/city-selection',
-                builder: (context, state) => const CitySelectionScreen(),
+                path: '/chats',
+                builder: (context, state) => const ChatsScreen(),
               ),
             ],
           ),
 
-          // BRANCH 3: Quests
+          // BRANCH 4: Quests
           StatefulShellBranch(
             navigatorKey: _shellNavigatorQuestsKey,
             routes: [
@@ -113,13 +134,19 @@ final routerProvider = Provider<GoRouter>((ref) {
             ],
           ),
 
-          // BRANCH 4: Profile
+          // BRANCH 5: Profile
           StatefulShellBranch(
             navigatorKey: _shellNavigatorProfileKey,
             routes: [
               GoRoute(
                 path: '/profile',
                 builder: (context, state) => const ProfileScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'edit',
+                    builder: (context, state) => const EditProfileScreen(),
+                  ),
+                ],
               ),
             ],
           ),

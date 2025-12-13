@@ -23,6 +23,7 @@ dependencies:
   firebase_auth: ^4.20.0
   google_sign_in: ^6.2.1
   shared_preferences: ^2.5.4
+  video_player: ^2.8.1
 
 dev_dependencies:
   flutter_test:
@@ -31,3 +32,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/videos/

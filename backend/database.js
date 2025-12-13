@@ -53,6 +53,11 @@ db.serialize(() => {
     if (!err) console.log("Migrated: Added category column to travel_events");
   });
 
+  // Migration: Add status column for open/closed events
+  db.run("ALTER TABLE travel_events ADD COLUMN status TEXT DEFAULT 'open'", (err) => {
+    if (!err) console.log("Migrated: Added status column to travel_events");
+  });
+
   // 4. Group Chats Table
   db.run(`CREATE TABLE IF NOT EXISTS group_chats (
     id TEXT PRIMARY KEY,
@@ -102,6 +107,21 @@ db.serialize(() => {
     timestamp TEXT NOT NULL,
     status TEXT DEFAULT 'active'
   )`);
+
+  // 6b. Emergency Contacts Table (For SOS notifications)
+  db.run(`CREATE TABLE IF NOT EXISTS emergency_contacts (
+    id TEXT PRIMARY KEY,
+    userId TEXT NOT NULL,
+    name TEXT NOT NULL,
+    phone TEXT,
+    email TEXT,
+    FOREIGN KEY(userId) REFERENCES users(uid) ON DELETE CASCADE
+  )`);
+
+  // Migration: Add phoneNumber to users table
+  db.run("ALTER TABLE users ADD COLUMN phoneNumber TEXT", (err) => {
+    if (!err) console.log("Migrated: Added phoneNumber column to users");
+  });
 
   // 7. OTP Codes (Updated for Server Logic)
   db.run(`CREATE TABLE IF NOT EXISTS otp_codes (

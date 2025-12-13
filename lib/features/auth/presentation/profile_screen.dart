@@ -99,6 +99,18 @@ class ProfileScreen extends ConsumerWidget {
              const _ProfileMenuItem(icon: Icons.favorite_border, title: 'Favorites', delay: 300),
              const _ProfileMenuItem(icon: Icons.history, title: 'Trip History', delay: 400),
              const _ProfileMenuItem(icon: Icons.payment, title: 'Payment Methods', delay: 500),
+             _ProfileMenuItem(
+               icon: Icons.edit_outlined, 
+               title: 'Edit Profile', 
+               delay: 550,
+               onTap: () => context.push('/profile/edit'),
+             ),
+             _ProfileMenuItem(
+               icon: Icons.shield_outlined, 
+               title: 'Emergency Contacts', 
+               delay: 600,
+               onTap: () => context.push('/profile/edit'),
+             ),
              const SizedBox(height: 24),
              const Divider(),
              const SizedBox(height: 24),
@@ -152,15 +164,16 @@ class _ProfileMenuItem extends StatelessWidget {
   final IconData icon;
   final String title;
   final int delay;
+  final VoidCallback? onTap;
 
-  const _ProfileMenuItem({required this.icon, required this.title, required this.delay});
+  const _ProfileMenuItem({required this.icon, required this.title, required this.delay, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: InkWell(
-        onTap: () {},
+        onTap: onTap ?? () {},
         borderRadius: BorderRadius.circular(12),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

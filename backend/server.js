@@ -426,6 +426,167 @@ app.post('/chats/:chatId/messages', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+
+// --- CHAT DETAILS (Event info + Members) ---
+app.get('/chats/:chatId/details', async (req, res) => {
+    const { chatId } = req.params;
+    console.log('🔍 Chat details requested for chatId:', chatId);
+    try {
+        // Try to get the linked event from group_chats
+        let chat = await getQuery('SELECT eventId FROM group_chats WHERE id = ?', [chatId]);
+        console.log('  group_chats lookup result:', chat);
+
+        // If not found, derive eventId from chatId (strip 'chat_' prefix)
+        let eventId;
+        if (!chat) {
+            // chatId format is "chat_<eventId>", extract eventId
+            eventId = chatId.startsWith('chat_') ? chatId.substring(5) : chatId;
+
+            // Check if event exists
+            const eventExists = await getQuery('SELECT id FROM travel_events WHERE id = ?', [eventId]);
+            if (!eventExists) {
+                return res.status(404).json({ error: 'Chat not found' });
+            }
+
+            // Auto-create the group_chat entry for this event
+            await runQuery('INSERT INTO group_chats (id, eventId) VALUES (?, ?)', [chatId, eventId]);
+            console.log(`Auto-created group_chat: ${chatId} -> ${eventId}`);
+        } else {
+            eventId = chat.eventId;
+        }
+
+        // Get event details
+        const event = await getQuery('SELECT * FROM travel_events WHERE id = ?', [eventId]);
+        if (!event) {
+            return res.status(404).json({ error: 'Event not found' });
+        }
+
+        // Get participants (excluding creator to avoid duplication)
+        const participants = await allQuery(
+            'SELECT u.uid, u.displayName FROM event_participants ep JOIN users u ON ep.userId = u.uid WHERE ep.eventId = ? AND ep.userId != ?',
+            [eventId, event.creatorId]
+        );
+
+        // Add creator to members list first
+        const creator = await getQuery('SELECT uid, displayName FROM users WHERE uid = ?', [event.creatorId]);
+        const members = creator ? [{ ...creator, isCreator: true }, ...participants] : participants;
+
+        res.json({
+            eventId: event.id,
+            eventTitle: event.title,
+            city: event.city,
+            creatorId: event.creatorId,
+            status: event.status || 'open',
+            members: members
+        });
+    } catch (err) {
+        console.error('Chat details error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// --- LEAVE EVENT (with ownership transfer) ---
+app.post('/events/:eventId/leave', async (req, res) => {
+    const { eventId } = req.params;
+    const { userId } = req.body;
+    console.log(`User ${userId} leaving event ${eventId}`);
+
+    try {
+        const event = await getQuery('SELECT * FROM travel_events WHERE id = ?', [eventId]);
+        if (!event) {
+            return res.status(404).json({ error: 'Event not found' });
+        }
+
+        const isCreator = event.creatorId === userId;
+
+        if (isCreator) {
+            // Find earliest joined member to transfer ownership
+            const earliestMember = await getQuery(
+                'SELECT userId FROM event_participants WHERE eventId = ? ORDER BY rowid ASC LIMIT 1',
+                [eventId]
+            );
+
+            if (earliestMember) {
+                // Transfer ownership
+                await runQuery('UPDATE travel_events SET creatorId = ? WHERE id = ?', [earliestMember.userId, eventId]);
+                console.log(`Ownership transferred to ${earliestMember.userId}`);
+            } else {
+                // No other members, delete the event entirely
+                await runQuery('DELETE FROM travel_events WHERE id = ?', [eventId]);
+                await runQuery('DELETE FROM group_chats WHERE eventId = ?', [eventId]);
+                console.log(`Event ${eventId} deleted (no members left)`);
+                return res.json({ success: true, eventDeleted: true });
+            }
+        }
+
+        // Remove user from participants
+        await runQuery('DELETE FROM event_participants WHERE eventId = ? AND userId = ?', [eventId, userId]);
+
+        res.json({ success: true, ownershipTransferred: isCreator });
+    } catch (err) {
+        console.error('Leave event error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// --- CLOSE EVENT (Hide from Bulletin Board, keep GC) ---
+app.post('/events/:eventId/close', async (req, res) => {
+    const { eventId } = req.params;
+    const { userId } = req.body;
+    console.log(`User ${userId} closing event ${eventId}`);
+
+    try {
+        const event = await getQuery('SELECT creatorId FROM travel_events WHERE id = ?', [eventId]);
+        if (!event) {
+            return res.status(404).json({ error: 'Event not found' });
+        }
+
+        if (event.creatorId !== userId) {
+            return res.status(403).json({ error: 'Only the creator can close this event' });
+        }
+
+        await runQuery("UPDATE travel_events SET status = 'closed' WHERE id = ?", [eventId]);
+        console.log(`Event ${eventId} closed`);
+
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Close event error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// --- GET USER'S GROUP CHATS ---
+app.get('/chats/groups/:userId', async (req, res) => {
+    const { userId } = req.params;
+    console.log(`Fetching group chats for user: ${userId}`);
+
+    try {
+        // Get events where user is creator OR participant
+        const events = await allQuery(`
+            SELECT DISTINCT e.id, e.title, e.city, e.status, e.creatorId,
+                   gc.id as chatId
+            FROM travel_events e
+            LEFT JOIN group_chats gc ON gc.eventId = e.id
+            WHERE e.creatorId = ?
+               OR e.id IN (SELECT eventId FROM event_participants WHERE userId = ?)
+        `, [userId, userId]);
+
+        // Format response
+        const groupChats = events.map(e => ({
+            chatId: e.chatId || `chat_${e.id}`,
+            eventId: e.id,
+            eventTitle: e.title,
+            city: e.city,
+            status: e.status || 'open',
+            isCreator: e.creatorId === userId
+        }));
+
+        res.json(groupChats);
+    } catch (err) {
+        console.error('Get user group chats error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
 // --- SAFETY ---
 
 // Create Safety Alert
@@ -919,6 +1080,109 @@ app.get('/quests/progress/:userId', async (req, res) => {
         const progress = await allQuery('SELECT * FROM user_quest_progress WHERE userId = ?', [req.params.userId]);
         res.json(progress);
     } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// =====================================================
+// ============ SAFETY & PROFILE ENDPOINTS =============
+// =====================================================
+
+// --- Update User Profile ---
+app.put('/users/:uid', async (req, res) => {
+    const { uid } = req.params;
+    const { displayName, phoneNumber } = req.body;
+    try {
+        await runQuery(
+            'UPDATE users SET displayName = COALESCE(?, displayName), phoneNumber = COALESCE(?, phoneNumber) WHERE uid = ?',
+            [displayName, phoneNumber, uid]
+        );
+        const updatedUser = await getQuery('SELECT * FROM users WHERE uid = ?', [uid]);
+        res.json({ success: true, user: updatedUser });
+    } catch (e) {
+        console.error('Error updating user profile:', e);
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// --- Emergency Contacts CRUD ---
+app.get('/safety/contacts/:userId', async (req, res) => {
+    try {
+        const contacts = await allQuery('SELECT * FROM emergency_contacts WHERE userId = ?', [req.params.userId]);
+        res.json(contacts);
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/safety/contacts', async (req, res) => {
+    const { userId, name, phone, email } = req.body;
+    const id = uuidv4();
+    try {
+        await runQuery(
+            'INSERT INTO emergency_contacts (id, userId, name, phone, email) VALUES (?, ?, ?, ?, ?)',
+            [id, userId, name, phone, email]
+        );
+        res.json({ success: true, id });
+    } catch (e) {
+        console.error('Error adding emergency contact:', e);
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.delete('/safety/contacts/:id', async (req, res) => {
+    try {
+        await runQuery('DELETE FROM emergency_contacts WHERE id = ?', [req.params.id]);
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// --- SOS Alert Trigger ---
+app.post('/safety/sos', async (req, res) => {
+    const { userId, latitude, longitude, type } = req.body;
+    const id = uuidv4();
+    const timestamp = new Date().toISOString();
+    console.log('🚨 SOS ALERT RECEIVED:', { userId, latitude, longitude, type });
+
+    try {
+        // 1. Log the alert in the database
+        await runQuery(
+            'INSERT INTO safety_alerts (id, userId, latitude, longitude, type, timestamp) VALUES (?, ?, ?, ?, ?, ?)',
+            [id, userId, latitude, longitude, type || 'emergency', timestamp]
+        );
+
+        // 2. Fetch emergency contacts for this user
+        const contacts = await allQuery('SELECT * FROM emergency_contacts WHERE userId = ?', [userId]);
+        const user = await getQuery('SELECT displayName, email FROM users WHERE uid = ?', [userId]);
+
+        // 3. Send email to all emergency contacts
+        const mapLink = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+
+        if (transporter && contacts.length > 0) {
+            for (const contact of contacts) {
+                if (contact.email) {
+                    try {
+                        await transporter.sendMail({
+                            from: process.env.EMAIL_FROM || process.env.EMAIL_USER || '"Travel App Safety" <sos@travelapp.com>',
+                            to: contact.email,
+                            subject: `🚨 EMERGENCY ALERT from ${user?.displayName || 'A User'}`,
+                            html: `
+                                <h1 style="color: red;">⚠️ EMERGENCY ALERT</h1>
+                                <p><strong>${user?.displayName || 'A user'}</strong> has triggered an SOS alert!</p>
+                                <p><strong>Time:</strong> ${timestamp}</p>
+                                <p><strong>Location:</strong> <a href="${mapLink}">View on Google Maps</a></p>
+                                <p style="color: red;">Please check on them immediately or contact local authorities.</p>
+                            `
+                        });
+                        console.log(`SOS email sent to: ${contact.email}`);
+                    } catch (emailErr) {
+                        console.error(`Failed to send SOS email to ${contact.email}:`, emailErr);
+                    }
+                }
+            }
+        }
+
+        res.json({ success: true, alertId: id, contactsNotified: contacts.length });
+    } catch (e) {
+        console.error('Error triggering SOS:', e);
+        res.status(500).json({ error: e.message });
+    }
 });
 
 app.listen(PORT, '0.0.0.0', () => {

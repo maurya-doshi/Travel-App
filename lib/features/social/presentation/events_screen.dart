@@ -350,7 +350,7 @@ class _MinimalistEventCard extends ConsumerWidget {
     return GestureDetector(
       onTap: () {
         if (isParticipant) {
-          context.push('/chat/${event.id.replaceAll('event_', 'chat_')}');
+          context.push('/chat/chat_${event.id}');
         }
       },
       child: Container(
@@ -753,7 +753,7 @@ class _CityCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.push('/explore/events?city=$city'),
+      onTap: () => context.push('/bulletin'),
       child: Container(
         width: 120,
         decoration: BoxDecoration(

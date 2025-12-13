@@ -45,7 +45,7 @@ class CitySelectionScreen extends StatelessWidget {
                   final city = kSupportedCities[index];
                   return GestureDetector(
                     onTap: () {
-                       context.push('/explore/events?city=${city['name']}');
+                       context.push('/bulletin');
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),

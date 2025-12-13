@@ -254,4 +254,17 @@ class ApiSocialRepository implements SocialRepository {
     final response = await _apiService.get('/quests/progress/$userId/$questId');
     return response as Map<String, dynamic>;
   }
+
+  // --- CHAT DETAILS ---
+  @override
+  Future<Map<String, dynamic>> getChatDetails(String chatId) async {
+    final response = await _apiService.get('/chats/$chatId/details');
+    return response as Map<String, dynamic>;
+  }
+
+  // --- LEAVE EVENT ---
+  @override
+  Future<void> leaveEvent(String eventId, String userId) async {
+    await _apiService.post('/events/$eventId/leave', {'userId': userId});
+  }
 }

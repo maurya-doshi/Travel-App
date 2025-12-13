@@ -38,4 +38,8 @@ abstract class SocialRepository {
   Future<List<Quest>> getActiveQuests(String userId);
   Future<Map<String, dynamic>> completeStep(String userId, String questId, String stepId);
   Future<Map<String, dynamic>> getQuestProgress(String userId, String questId);
+
+  // Chat Details & Leave
+  Future<Map<String, dynamic>> getChatDetails(String chatId);
+  Future<void> leaveEvent(String eventId, String userId);
 }
