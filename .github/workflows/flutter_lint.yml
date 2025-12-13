@@ -2,12 +2,12 @@ name: Flutter Linter
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ main ]
+    branches: [ "main" ]
 
 jobs:
-  analyze:
+  lint:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,13 +18,4 @@ jobs:
           channel: stable
 
       - run: flutter pub get
-
-      # Relaxed linting on PRs
-      - name: Analyze (PR-safe)
-        if: github.event_name == 'pull_request'
-        run: flutter analyze --no-fatal-infos --no-fatal-warnings
-
-      # Strict linting only on main
-      - name: Analyze (Main strict)
-        if: github.event_name == 'push'
-        run: flutter analyze
+      - run: flutter analyze
